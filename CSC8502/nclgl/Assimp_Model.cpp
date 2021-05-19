@@ -1,7 +1,7 @@
 #include "Assimp_Model.h"
 
 Assimp_Model::Assimp_Model(const std::string& path) {
-	LoadModel(path);
+	LoadModel(MODELSDIR + path);
 }
 
 void Assimp_Model::Draw(Shader* shader) {
@@ -82,33 +82,32 @@ Assimp_Mesh Assimp_Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
 			vertex.TexCoords = Vector2(0.0f, 0.0f);
 
 		vertices.push_back(vertex);
-
-		// indices
-		for (int i = 0; i < mesh->mNumFaces; i++)
-		{
-			aiFace face = mesh->mFaces[i];
-			for (int j = 0; j < face.mNumIndices; j++)
-				indices.push_back(face.mIndices[j]);
-		}
-
-		// materials
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-		// 1. diffuse maps
-		vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		// 2. specular maps
-		vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-		// 3. normal maps
-		std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-		// 4. height maps
-		std::vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-
-		return Assimp_Mesh(vertices, indices, textures);
 	}
+	// indices
+	for (int i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+		for (int j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+
+	// materials
+	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+	// 1. diffuse maps
+	vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	// 2. specular maps
+	vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	// 3. normal maps
+	std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+	// 4. height maps
+	std::vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+
+	return Assimp_Mesh(vertices, indices, textures);
 }
 
 std::vector<Texture> Assimp_Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {
