@@ -2,6 +2,7 @@
 #include "../NCLGL/OGLRenderer.h"
 #include "../nclgl/Camera.h"
 #include "../nclgl/Assimp_Model.h"
+#include "../nclgl/Light.h"
 
 class Renderer : public OGLRenderer	{
 public:
@@ -10,11 +11,11 @@ public:
 	 void RenderScene()				override;
 	 void UpdateScene(float msec)	override;
 protected:
-	Mesh*	triangle;
-	Shader* basicShader;
-
 
 	Camera* m_camera;
 	Assimp_Model* m_model;
 	Shader* m_modelShader;
+	std::vector<Light*> m_lights;
+
+	void GenerateLights();
 };
