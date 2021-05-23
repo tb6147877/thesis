@@ -36,6 +36,8 @@
     <ClCompile Include="Assimp_Model.cpp" />
     <ClCompile Include="Assimp_Mesh.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Quad.cpp" />
+    <ClCompile Include="Sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -83,6 +85,8 @@
     <ClInclude Include="Assimp_Model.h" />
     <ClInclude Include="Assimp_Mesh.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Quad.h" />
+    <ClInclude Include="Sphere.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GLAD">

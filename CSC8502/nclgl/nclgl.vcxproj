@@ -35,8 +35,10 @@
     <ClCompile Include="MeshMaterial.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="OGLRenderer.cpp" />
+    <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -57,8 +59,10 @@
     <ClInclude Include="MeshMaterial.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="OGLRenderer.h" />
+    <ClInclude Include="Quad.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vector4.h" />

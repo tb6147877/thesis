@@ -1,0 +1,29 @@
+#version 330 core
+
+uniform mat4 modelMatrix ;
+uniform mat4 viewMatrix ;
+uniform mat4 projMatrix ;
+
+layout (location = 0 ) in vec3 aPos;
+layout (location = 1 ) in vec3 aNormal;
+layout (location = 2 ) in vec2 aTexcoords;
+layout (location = 3 ) in vec3 aTangent;
+layout (location = 4 ) in vec3 aBitangent;
+
+out Vertex {
+	vec2 texcoords;
+	mat3 TBN;
+} OUT ;
+
+void main(){
+	OUT.texcoords=aTexcoords;
+	gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0);
+
+	mat3 normalMat=mat3(transpose(inverse(modelMatrix)));
+	vec3 tan=normalMat*aTangent;
+	vec3 bitan=normalMat*aBitangent;
+	vec3 norm=normalMat*aNormal;
+
+	mat3 TBN=mat3(tan,bitan,norm);
+	OUT.TBN=TBN;
+}

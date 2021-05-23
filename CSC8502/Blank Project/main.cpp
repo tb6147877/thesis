@@ -2,7 +2,7 @@
 #include "Renderer.h"
 
 int main()	{
-	Window w("Make your own project!", 1280, 720, false);
+	Window w("NCL Thesis!", 1280, 720, false);
 
 	if(!w.HasInitialised()) {
 		return -1;
@@ -14,6 +14,13 @@ int main()	{
 	}
 
 	while(w.UpdateWindow()  && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)){
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_0)) {
+			renderer.SwitchShadingType(Renderer::ShadingType::Forward);
+		}
+		else if (Window::GetKeyboard()->KeyDown(KEYBOARD_1)){
+			renderer.SwitchShadingType(Renderer::ShadingType::Deferred);
+		}
+
 		renderer.UpdateScene(w.GetTimer()->GetTimeDeltaSeconds());
 		renderer.RenderScene();
 		renderer.SwapBuffers();
