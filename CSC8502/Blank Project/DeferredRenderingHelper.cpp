@@ -8,7 +8,7 @@ DeferredRenderingHelper::DeferredRenderingHelper(const int width, const int heig
 
 	GLenum buffers[2] = { GL_COLOR_ATTACHMENT0 ,GL_COLOR_ATTACHMENT1 };
 	
-	GenerateScreenTexture(m_gBufferDepthTex, 0);
+	GenerateScreenTexture(m_gBufferDepthTex, 0);//depth attachment
 	GenerateScreenTexture(m_gBufferColorTex, 1);//within 0-1,use rgba
 	GenerateScreenTexture(m_gBufferNormalTex, 2);//may beyond 0-1,use rgba16f
 
@@ -56,7 +56,7 @@ void DeferredRenderingHelper::GenerateScreenTexture(GLuint& tex, const int type)
 	case 0:
 		format = GL_DEPTH_COMPONENT24;
 		t_type = GL_DEPTH_COMPONENT;
-		glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, t_type, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, t_type, GL_FLOAT, NULL);
 		break;
 	case 1:
 		format = GL_RGBA;

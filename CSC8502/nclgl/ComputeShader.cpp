@@ -57,3 +57,9 @@ void ComputeShader::Bind()		const {
 void ComputeShader::Unbind()	const {
 	glUseProgram(0);
 }
+
+void ComputeShader::GetThreadsInGroup(int& x, int& y, int& z)const {
+	x = threadsInGroup[0];
+	y = threadsInGroup[1];
+	z = threadsInGroup[2];
+}

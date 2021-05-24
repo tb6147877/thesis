@@ -5,7 +5,9 @@
 #include "../nclgl/Light.h"
 #include "../nclgl/Quad.h"
 #include "../nclgl/Sphere.h"
+#include "../nclgl/ComputeShader.h"
 #include "DeferredRenderingHelper.h"
+#include "DepthPreHelper.h"
 
 class Renderer : public OGLRenderer	{
 public:
@@ -33,6 +35,7 @@ protected:
 	Quad* m_quad;
 	Sphere* m_sphere;
 	DeferredRenderingHelper* m_deferredHelper;
+	DepthPreHelper* m_depthPreHelper;
 
 	void GenerateLights();
 	
@@ -48,4 +51,9 @@ protected:
 	void FillGBuffer();
 	void RenderLighting();
 	void CombineBuffer();
+
+	//forward+ part
+	Shader* m_depthPreShader;
+	ComputeShader* m_lightCullingShader;
+	void DepthPrePass();
 };

@@ -142,12 +142,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DeferredRenderingHelper.cpp" />
+    <ClCompile Include="DepthPreHelper.cpp" />
+    <ClCompile Include="FinalOutputHelper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeferredRenderingHelper.h" />
+    <ClInclude Include="DepthPreHelper.h" />
+    <ClInclude Include="FinalOutputHelper.h" />
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
