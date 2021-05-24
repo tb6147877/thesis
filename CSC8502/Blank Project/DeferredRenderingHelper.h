@@ -21,7 +21,9 @@ private:
 	GLuint m_gBufferFBO, m_gBufferColorTex, m_gBufferDepthTex, m_gBufferNormalTex;
 	GLuint m_lightingFBO, m_lightingDiffTex, m_lightingSpecTex;
 	int m_width, m_height;
-	void GenerateScreenTexture(GLuint& tex, const bool depth = false);
+
+	//0.depth  1.RGBA   2.RGBA16F
+	void GenerateScreenTexture(GLuint& tex, const int type);
 
 };
 
