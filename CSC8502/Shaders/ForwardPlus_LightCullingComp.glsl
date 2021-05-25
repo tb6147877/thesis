@@ -1,9 +1,9 @@
 #version 430
 
 struct PointLight {
-	vec3 color;
-	vec3 position;
-	float radius;
+	vec4 color;
+	vec4 position;
+	vec4 radius;//data alignment
 };
 
 struct VisibleIndex {
@@ -61,7 +61,7 @@ void main(){
 	float maxDepth, minDepth;
 	vec2 texcoord = vec2(location) / screenSize;
 	float depth = texture(depthTex, texcoord).r;
-	depth = (0.5 * projection[3][2]) / (depth + 0.5 * projection[2][2] - 0.5);
+	depth = (0.5 * projMatrix[3][2]) / (depth + 0.5 * projMatrix[2][2] - 0.5);
 
 	uint depthInt = floatBitsToUint(depth);
 	atomicMin(minDepthInt, depthInt);
@@ -89,7 +89,7 @@ void main(){
 			frustumPlanes[i] /= length(frustumPlanes[i].xyz);
 		}
 
-		rustumPlanes[4] *= viewMatrix;
+		frustumPlanes[4] *= viewMatrix;
 		frustumPlanes[4] /= length(frustumPlanes[4].xyz);
 		frustumPlanes[5] *= viewMatrix;
 		frustumPlanes[5] /= length(frustumPlanes[5].xyz);
@@ -97,5 +97,42 @@ void main(){
 	barrier();
 
 	//3.Cull lights.
+	uint threadCount = TILE_SIZE * TILE_SIZE;
+	uint passCount = (lightCount + threadCount - 1) / threadCount;
+	for (uint i = 0; i < passCount; i++) {
+		uint lightIndex = i * threadCount + gl_LocalInvocationIndex;
+		if (lightIndex >= lightCount) {
+			break;
+		}
 
+		vec4 position = lightBuffer.data[lightIndex].position;
+		float radius = lightBuffer.data[lightIndex].radius.w;
+
+		float distance = 0.0;
+		for (uint j = 0; j < 6; j++) {
+			distance = dot(position, frustumPlanes[j]) + radius;
+
+			if (distance <= 0.0) {
+				break;
+			}
+		}
+
+		if (distance > 0.0) {
+			uint offset = atomicAdd(visibleLightCount, 1);
+			visibleLightIndices[offset] = int(lightIndex);
+		}
+	}
+
+	barrier();
+
+	if (gl_LocalInvocationIndex == 0) {
+		uint offset = index * 1024; 
+		for (uint i = 0; i < visibleLightCount; i++) {
+			visibleLightIndicesBuffer.data[offset + i].index = visibleLightIndices[i];
+		}
+
+		if (visibleLightCount != 1024) {
+			visibleLightIndicesBuffer.data[offset + visibleLightCount].index = -1;
+		}
+	}
 }

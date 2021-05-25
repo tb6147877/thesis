@@ -8,6 +8,19 @@
 #include "../nclgl/ComputeShader.h"
 #include "DeferredRenderingHelper.h"
 #include "DepthPreHelper.h"
+#include "FinalOutputHelper.h"
+
+struct PointLight
+{
+	Vector4 color;
+	Vector4 position;
+	Vector4 radius;
+};
+
+struct VisibleIndex
+{
+	int index;
+};
 
 class Renderer : public OGLRenderer	{
 public:
@@ -28,6 +41,8 @@ public:
 
 	 void SwitchShadingType(const ShadingType type) { m_shadingType = type; }
 protected:
+	const unsigned int NUM_LIGHTS = 6;
+
 	ShadingType m_shadingType;
 	Camera* m_camera;
 	Assimp_Model* m_model;
@@ -36,6 +51,8 @@ protected:
 	Sphere* m_sphere;
 	DeferredRenderingHelper* m_deferredHelper;
 	DepthPreHelper* m_depthPreHelper;
+	FinalOutputHelper* m_finalHelper;
+	Shader* m_finalShader;
 
 	void GenerateLights();
 	
@@ -53,7 +70,13 @@ protected:
 	void CombineBuffer();
 
 	//forward+ part
+	GLuint m_workGroupsX, m_workGroupsY;
+	GLuint m_lightsSSBO, m_visibleLightIndicesSSBO;
 	Shader* m_depthPreShader;
+	Shader* m_fp_lightingShader;
 	ComputeShader* m_lightCullingShader;
 	void DepthPrePass();
+	void LightCullingPass();
+	void CalculateLighting();
+
 };
