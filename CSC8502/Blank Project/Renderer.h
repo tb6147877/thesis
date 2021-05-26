@@ -40,6 +40,7 @@ public:
 	 void UpdateScene(float msec)	override;
 
 	 void SwitchShadingType(const ShadingType type) { m_shadingType = type; }
+	 void SetExposure(const float x) { m_exposure += x; }
 protected:
 	const unsigned int NUM_LIGHTS = 6;
 
@@ -53,6 +54,7 @@ protected:
 	DepthPreHelper* m_depthPreHelper;
 	FinalOutputHelper* m_finalHelper;
 	Shader* m_finalShader;
+	float m_exposure;
 
 	void GenerateLights();
 	

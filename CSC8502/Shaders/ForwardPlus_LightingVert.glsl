@@ -10,8 +10,7 @@ out Vertex {
 	vec3 fragPos;
 	vec2 texcoords;
 	mat3 TBN;
-	vec3 viewPos_tan;
-	vec3 fragPos_tan;
+	vec3 viewPos;
 } OUT ;
 
 uniform mat4 modelMatrix;
@@ -30,9 +29,7 @@ void main(){
 	vec3 bitan=normalMat*aBitangent;
 	vec3 norm=normalMat*aNormal;
 	
-	mat3 TBN=transpose(mat3(tan,bitan,norm));
+	mat3 TBN=mat3(tan,bitan,norm);
 	OUT.TBN=TBN;
-	OUT.viewPos_tan=TBN*viewPos;
-	OUT.fragPos_tan=TBN*OUT.fragPos;
-    
+    OUT.viewPos=viewPos;
 }

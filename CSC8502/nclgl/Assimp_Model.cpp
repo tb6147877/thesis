@@ -130,7 +130,7 @@ std::vector<Texture> Assimp_Model::LoadMaterialTextures(aiMaterial* mat, aiTextu
 		if (!skip)
 		{
 			Texture texture;
-			texture.id =Texture::TextureFromFile(str.C_Str(), this->m_directory);
+			texture.id =Texture::TextureFromFile(str.C_Str(), this->m_directory,typeName);
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);

@@ -1,9 +1,8 @@
 #include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	std::cout << sizeof(Vector4) << "\n";
 	m_shadingType = ShadingType::ForwardPlus;
-
+	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
 
@@ -288,7 +287,7 @@ void Renderer::CalculateLighting() {
 	glUniform1i(glGetUniformLocation(m_finalShader->GetProgram(), "diffTex"), 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_finalHelper->GetTex());
-	glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), 1.0f);
+	glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), m_exposure);
 	m_quad->Draw();
 
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);

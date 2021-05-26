@@ -21,6 +21,14 @@ int main()	{
 			renderer.SwitchShadingType(Renderer::ShadingType::Deferred);
 		}
 
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_P)) {
+			renderer.SetExposure(0.01f);
+		}
+
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_L)) {
+			renderer.SetExposure(-0.01f);
+		}
+
 		renderer.UpdateScene(w.GetTimer()->GetTimeDeltaSeconds());
 		renderer.RenderScene();
 		renderer.SwapBuffers();
