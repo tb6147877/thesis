@@ -13,6 +13,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_depthPreHelper =new DepthPreHelper{ width,height };
 	m_finalHelper=new FinalOutputHelper{ width,height };
 
+	//split screen with 16*16 tiles
 	m_workGroupsX = (width + (width % 16)) / 16;//judge if the exceeded pixels greater than half of 16, if it is, will get more tile
 	m_workGroupsY = (height + (height % 16)) / 16;
 	size_t numberOfTiles = m_workGroupsX * m_workGroupsY;
