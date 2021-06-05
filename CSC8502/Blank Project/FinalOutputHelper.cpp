@@ -16,8 +16,8 @@ FinalOutputHelper::FinalOutputHelper(const int width, const int height)
 
 	glGenRenderbuffers(1, &m_RBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
-
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_width, m_height);//both GL_DEPTH_COMPONENT and depth24_stencil8 work
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Tex, 0);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RBO);
