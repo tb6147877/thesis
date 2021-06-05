@@ -97,8 +97,7 @@ void Renderer::GenerateLights() {
 	{
 		PointLight& light = pointLights[i];
 		light.color = Vector4{ m_lights[i]->GetColor().x,m_lights[i]->GetColor().y,m_lights[i]->GetColor().z,1.0f };
-		light.position = Vector4{ m_lights[i]->GetPosition().x,m_lights[i]->GetPosition().y,m_lights[i]->GetPosition().z,1.0f };
-		light.radius = Vector4{ 0.0f,0.0f,0.0f,m_lights[i]->GetRadius() };
+		light.position_radius = Vector4{ m_lights[i]->GetPosition().x,m_lights[i]->GetPosition().y,m_lights[i]->GetPosition().z,m_lights[i]->GetRadius() };
 	}
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);

@@ -15,8 +15,7 @@ uniform int numberOfTilesX;
 
 struct PointLight{
     vec4 color;
-    vec4 position;
-    vec4 radius;
+    vec4 position_radius;
 };
 
 struct VisibleIndex {
@@ -59,11 +58,11 @@ void main(){
 }
 
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos){
-	float dis=length(light.position.xyz-fragPos);
-	float atten=1.0-clamp(dis/light.radius.w,0.0,1.0);
+	float dis=length(light.position_radius.xyz-fragPos);
+	float atten=1.0-clamp(dis/light.position_radius.w,0.0,1.0);
 
 	vec3 result=vec3(0.0);
-	vec3 lightDir=normalize(light.position.xyz-fragPos);
+	vec3 lightDir=normalize(light.position_radius.xyz-fragPos);
 	float diff=max(dot(normal,lightDir),0.0);
 	vec3 halfDir=normalize(viewDir+lightDir);
 	float spec=pow(max(dot(halfDir,normal),0.0),32.0);

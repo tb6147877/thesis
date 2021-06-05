@@ -2,8 +2,7 @@
 
 struct PointLight {
 	vec4 color;
-	vec4 position;
-	vec4 radius;//data alignment
+	vec4 position_radius;
 };
 
 struct VisibleIndex {
@@ -105,8 +104,8 @@ void main(){
 			break;
 		}
 
-		vec4 position = lightBuffer.data[lightIndex].position;
-		float radius = lightBuffer.data[lightIndex].radius.w;
+		vec4 position = vec4(lightBuffer.data[lightIndex].position_radius.xyz,1.0);
+		float radius = lightBuffer.data[lightIndex].position_radius.w;
 
 		float distance = 0.0;
 		for (uint j = 0; j < 6; j++) {

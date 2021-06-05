@@ -13,8 +13,7 @@
 struct PointLight
 {
 	Vector4 color;
-	Vector4 position;
-	Vector4 radius;
+	Vector4 position_radius;
 };
 
 struct VisibleIndex
