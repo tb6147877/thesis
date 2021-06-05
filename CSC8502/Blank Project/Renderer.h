@@ -28,8 +28,8 @@ public:
 		Deferred,
 		ForwardPlus,
 		Cluster,
-		Debug_Depth,
-		Debug_Lights
+		ForwardPlus_Debug_Depth,
+		ForwardPlus_Debug_Lights
 	};
 
 
@@ -75,9 +75,10 @@ protected:
 	GLuint m_lightsSSBO, m_visibleLightIndicesSSBO;
 	Shader* m_depthPreShader;
 	Shader* m_fp_lightingShader;
+	Shader* m_fp_depthDebugShader;
 	ComputeShader* m_lightCullingShader;
 	void DepthPrePass();
 	void LightCullingPass();
 	void CalculateLighting();
-
+	void DrawDepthDebug();
 };

@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	m_shadingType = ShadingType::ForwardPlus;
+	m_shadingType = ShadingType::ForwardPlus_Debug_Depth;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -39,6 +39,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_depthPreShader= new Shader("ForwardPlus_DepthPreVert.glsl", "ForwardPlus_DepthPreFrag.glsl");
 	m_lightCullingShader = new ComputeShader("ForwardPlus_LightCullingComp.glsl");
 	m_fp_lightingShader = new Shader("ForwardPlus_LightingVert.glsl", "ForwardPlus_LightingFrag.glsl");
+	m_fp_depthDebugShader = new Shader("DepthDebugVert.glsl","DepthDebugFrag.glsl");
 
 	if (!m_modelShader->LoadSuccess() 
 		|| !m_finalShader->LoadSuccess()
@@ -47,6 +48,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 		|| !m_combineShader->LoadSuccess()
 		|| !m_depthPreShader->LoadSuccess()
 		|| !m_fp_lightingShader->LoadSuccess()
+		|| !m_fp_depthDebugShader->LoadSuccess()
 		) {
 		return;
 	}
@@ -76,6 +78,7 @@ Renderer::~Renderer(void)	{
 	delete m_depthPreShader;
 	delete m_lightCullingShader;
 	delete m_fp_lightingShader;
+	delete m_fp_depthDebugShader;
 
 	for (int i = 0; i < m_lights.size(); i++)
 	{
@@ -133,9 +136,10 @@ void Renderer::RenderScene()	{
 		break;
 	case Renderer::Cluster:
 		break;
-	case Renderer::Debug_Depth:
+	case Renderer::ForwardPlus_Debug_Depth:
+		DrawDepthDebug();
 		break;
-	case Renderer::Debug_Lights:
+	case Renderer::ForwardPlus_Debug_Lights:
 		break;
 	default:
 		break;
@@ -294,3 +298,13 @@ void Renderer::CalculateLighting() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
 }
 
+void Renderer::DrawDepthDebug() {
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+
+	BindShader(m_fp_depthDebugShader);
+	UpdateShaderMatrices();
+	glUniform1f(glGetUniformLocation(m_fp_depthDebugShader->GetProgram(), "near"), 1.0f);
+	glUniform1f(glGetUniformLocation(m_fp_depthDebugShader->GetProgram(), "far"), 3000.0f);
+	m_model->Draw(m_fp_depthDebugShader);
+}
