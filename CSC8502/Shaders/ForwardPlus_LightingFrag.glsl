@@ -31,7 +31,7 @@ layout(std430, binding = 1) readonly buffer VisibleLightIndicesBuffer {
 	VisibleIndex data[];
 } visibleLightIndicesBuffer;
 
-#define NR_POINT_LIGHT 6
+#define NR_POINT_LIGHT 1000
 
 
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos);

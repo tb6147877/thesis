@@ -1,4 +1,7 @@
 #pragma once
+
+#include <random>
+
 #include "../NCLGL/OGLRenderer.h"
 #include "../nclgl/Camera.h"
 #include "../nclgl/Assimp_Model.h"
@@ -41,8 +44,11 @@ public:
 	 void SwitchShadingType(const ShadingType type) { m_shadingType = type; }
 	 void SetExposure(const float x) { m_exposure += x; }
 protected:
-	const unsigned int NUM_LIGHTS = 6;
-
+	const unsigned int NUM_LIGHTS = 1000;
+	const float LIGHT_RADIUS = 100.0f;
+	const float LIGHT_BORDER_MIN[3]={ -1400.0f, 0.0f, -640.0f};
+	const float LIGHT_BORDER_MAX[3]={ 1300.0f,1400.0f, 560.0f };
+	
 	ShadingType m_shadingType;
 	Camera* m_camera;
 	Assimp_Model* m_model;
@@ -56,6 +62,7 @@ protected:
 	float m_exposure;
 
 	void GenerateLights();
+	Vector3 RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen);
 	
 
 	//Forward Shading part

@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	m_shadingType = ShadingType::ForwardPlus;
+	m_shadingType = ShadingType::Deferred;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -90,10 +90,15 @@ Renderer::~Renderer(void)	{
 }
 
 void Renderer::GenerateLights() {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);
+
 	//point lights
 	for (int i = 0; i < NUM_LIGHTS; i++)
 	{
-		m_lights.push_back(new Light{ Light::LightType::Point, Vector3{i*300.0f,120.0f,0.0f},200.0f,Vector3{1.0f,1.0f,1.0f} });
+		//m_lights.push_back(new Light{ Light::LightType::Point, Vector3{i*300.0f,120.0f,0.0f},LIGHT_RADIUS,Vector3{1.0f,1.0f,1.0f} });
+		m_lights.push_back(new Light{ Light::LightType::Point, RandomLightPosition(dis,gen),LIGHT_RADIUS,Vector3{1.0f+(float)dis(gen),1.0f + (float)dis(gen),1.0f + (float)dis(gen)} });
 	}
 
 	//fill light buffer for forward+
@@ -108,6 +113,21 @@ void Renderer::GenerateLights() {
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
+
+Vector3 Renderer::RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen) {
+	Vector3 pos{};
+	float temp[3];
+	for (int i = 0; i < 3; i++)
+	{
+		float min = LIGHT_BORDER_MIN[i];
+		float max = LIGHT_BORDER_MAX[i];
+		GLfloat aa = (GLfloat)dis(gen);
+		temp[i] =aa * (max - min) + min;
+	}
+	pos = Vector3{ temp[0],temp[1],temp[2] };
+	return pos;
+}
+
 
 
 void Renderer::UpdateScene(float dt) {
