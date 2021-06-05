@@ -20,6 +20,12 @@ int main()	{
 		else if (Window::GetKeyboard()->KeyDown(KEYBOARD_1)){
 			renderer.SwitchShadingType(Renderer::ShadingType::Deferred);
 		}
+		else if (Window::GetKeyboard()->KeyDown(KEYBOARD_2)) {
+			renderer.SwitchShadingType(Renderer::ShadingType::ForwardPlus);
+		}
+		else if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+			renderer.SwitchShadingType(Renderer::ShadingType::ForwardPlus_Debug_Lights);
+		}
 
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_P)) {
 			renderer.SetExposure(0.01f);

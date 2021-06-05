@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	m_shadingType = ShadingType::ForwardPlus_Debug_Depth;
+	m_shadingType = ShadingType::ForwardPlus_Debug_Lights;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -40,6 +40,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_lightCullingShader = new ComputeShader("ForwardPlus_LightCullingComp.glsl");
 	m_fp_lightingShader = new Shader("ForwardPlus_LightingVert.glsl", "ForwardPlus_LightingFrag.glsl");
 	m_fp_depthDebugShader = new Shader("DepthDebugVert.glsl","DepthDebugFrag.glsl");
+	m_fp_lightDebugShader = new Shader("ForwardPlus_LightingDebugVert.glsl", "ForwardPlus_LightingDebugFrag.glsl");
 
 	if (!m_modelShader->LoadSuccess() 
 		|| !m_finalShader->LoadSuccess()
@@ -49,6 +50,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 		|| !m_depthPreShader->LoadSuccess()
 		|| !m_fp_lightingShader->LoadSuccess()
 		|| !m_fp_depthDebugShader->LoadSuccess()
+		|| !m_fp_lightDebugShader->LoadSuccess()
 		) {
 		return;
 	}
@@ -79,6 +81,7 @@ Renderer::~Renderer(void)	{
 	delete m_lightCullingShader;
 	delete m_fp_lightingShader;
 	delete m_fp_depthDebugShader;
+	delete m_fp_lightDebugShader;
 
 	for (int i = 0; i < m_lights.size(); i++)
 	{
@@ -140,6 +143,9 @@ void Renderer::RenderScene()	{
 		DrawDepthDebug();
 		break;
 	case Renderer::ForwardPlus_Debug_Lights:
+		DepthPrePass();
+		LightCullingPass();
+		DrawLightDebug();
 		break;
 	default:
 		break;
@@ -307,4 +313,15 @@ void Renderer::DrawDepthDebug() {
 	glUniform1f(glGetUniformLocation(m_fp_depthDebugShader->GetProgram(), "near"), 1.0f);
 	glUniform1f(glGetUniformLocation(m_fp_depthDebugShader->GetProgram(), "far"), 3000.0f);
 	m_model->Draw(m_fp_depthDebugShader);
+}
+
+void Renderer::DrawLightDebug() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	BindShader(m_fp_lightDebugShader);
+	UpdateShaderMatrices();
+	glUniform1i(glGetUniformLocation(m_fp_lightDebugShader->GetProgram(), "totalLightCount"), NUM_LIGHTS);
+	glUniform1i(glGetUniformLocation(m_fp_lightDebugShader->GetProgram(), "numberOfTilesX"), m_workGroupsX);
+	m_model->Draw(m_fp_lightDebugShader);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
 }

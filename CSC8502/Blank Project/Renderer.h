@@ -76,9 +76,11 @@ protected:
 	Shader* m_depthPreShader;
 	Shader* m_fp_lightingShader;
 	Shader* m_fp_depthDebugShader;
+	Shader* m_fp_lightDebugShader;
 	ComputeShader* m_lightCullingShader;
 	void DepthPrePass();
 	void LightCullingPass();
 	void CalculateLighting();
 	void DrawDepthDebug();
+	void DrawLightDebug();
 };
