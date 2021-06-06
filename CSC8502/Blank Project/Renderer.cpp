@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	m_shadingType = ShadingType::Deferred;
+	m_shadingType = ShadingType::ForwardPlus;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -25,7 +25,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	glGenBuffers(1, &m_visibleLightIndicesSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_visibleLightIndicesSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, numberOfTiles * sizeof(VisibleIndex) * 1024, 0, GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, numberOfTiles * sizeof(VisibleIndex) * MAX_NUM_LIGHTS, 0, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -99,8 +99,9 @@ void Renderer::GenerateLights() {
 	//point lights
 	for (int i = 0; i < NUM_LIGHTS; i++)
 	{
-		//m_lights.push_back(new Light{ Light::LightType::Point, Vector3{i*300.0f,120.0f,0.0f},LIGHT_RADIUS,Vector3{1.0f,1.0f,1.0f} });
 		m_lights.push_back(new Light{ Light::LightType::Point, RandomLightPosition(dis,gen),LIGHT_RADIUS,Vector3{1.0f+(float)dis(gen),1.0f + (float)dis(gen),1.0f + (float)dis(gen)} });
+		//m_lights.push_back(new Light{ Light::LightType::Point, RandomLightPosition(dis,gen),LIGHT_RADIUS,Vector3{1.0f ,1.0f,1.0f} });
+		//dis(gen);//must has this line, or the random position is same
 	}
 
 	//fill light buffer for forward+
@@ -239,6 +240,7 @@ void Renderer::RenderLighting() {
 
 	for (int i = 0; i < m_lights.size(); i++)
 	{
+		//frustum culling
 		if (!m_frustum->InsideFrustum(m_lights[i]->GetPosition(), m_lights[i]->GetRadius()))
 		{
 			continue;

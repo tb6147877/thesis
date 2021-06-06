@@ -22,7 +22,7 @@ layout(std430, binding = 0) readonly buffer LightBuffer {
 	PointLight data[];
 } lightBuffer;
 
-#define NR_POINT_LIGHT 1000
+#define NR_POINT_LIGHT 2000
 
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos);
 

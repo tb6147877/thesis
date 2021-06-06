@@ -45,7 +45,8 @@ public:
 	 void SwitchShadingType(const ShadingType type) { m_shadingType = type; }
 	 void SetExposure(const float x) { m_exposure += x; }
 protected:
-	const unsigned int NUM_LIGHTS = 1000;
+	const unsigned int NUM_LIGHTS = 2000;
+	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 100.0f;
 	const float LIGHT_BORDER_MIN[3]={ -1400.0f, 0.0f, -640.0f};
 	const float LIGHT_BORDER_MAX[3]={ 1300.0f,1400.0f, 560.0f };

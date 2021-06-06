@@ -23,7 +23,8 @@ void main() {
 	uint i;
 	for (i = 0; i < 1024 && visibleLightIndicesBuffer.data[offset + i].index != -1; i++);
 
-	float ratio = float(i) / float(totalLightCount);
+	float ratio = float(i) / float(totalLightCount/15);
+	
 
 	
 	fragColor = vec4(vec3(ratio, ratio, ratio), 1.0);

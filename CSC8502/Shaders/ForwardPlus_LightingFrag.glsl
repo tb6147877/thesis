@@ -31,7 +31,8 @@ layout(std430, binding = 1) readonly buffer VisibleLightIndicesBuffer {
 	VisibleIndex data[];
 } visibleLightIndicesBuffer;
 
-#define NR_POINT_LIGHT 1000
+#define NR_POINT_LIGHT 2000
+#define MAX_NR_LIGHT 2048
 
 
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos);
@@ -46,7 +47,7 @@ void main(){
 	ivec2 tileID = location / ivec2(16, 16);
 	uint index = tileID.y * numberOfTilesX + tileID.x;
 
-	uint offset = index * 1024;
+	uint offset = index * MAX_NR_LIGHT;
 	for (uint i = 0; i < NR_POINT_LIGHT && visibleLightIndicesBuffer.data[offset + i].index != -1; i++) {
 		uint lightIndex = visibleLightIndicesBuffer.data[offset + i].index;
 		PointLight light = lightBuffer.data[lightIndex];
