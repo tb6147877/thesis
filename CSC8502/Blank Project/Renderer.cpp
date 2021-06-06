@@ -15,8 +15,8 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_frustum = new Frustum{};
 
 	//split screen with 16*16 tiles
-	m_workGroupsX = (width + (width % 16)) / 16;//judge if the exceeded pixels greater than half of 16, if it is, will get more tile
-	m_workGroupsY = (height + (height % 16)) / 16;
+	m_workGroupsX = (width + (width % TILE_SIZE)) / TILE_SIZE;//judge if the exceeded pixels greater than half of 16, if it is, will get more tile
+	m_workGroupsY = (height + (height % TILE_SIZE)) / TILE_SIZE;
 	size_t numberOfTiles = m_workGroupsX * m_workGroupsY;
 
 	glGenBuffers(1, &m_lightsSSBO);
@@ -115,6 +115,10 @@ void Renderer::GenerateLights() {
 	}
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+void Renderer::UpdateLights() {
+
 }
 
 Vector3 Renderer::RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen) {
