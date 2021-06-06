@@ -66,7 +66,7 @@ protected:
 	float m_exposure;
 
 	void GenerateLights();
-	void UpdateLights();
+	void UpdateLights(const float dt);
 	Vector3 RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen);
 	
 
@@ -95,4 +95,5 @@ protected:
 	void CalculateLighting();
 	void DrawDepthDebug();
 	void DrawLightDebug();
+	void FillLightsSSBO();
 };

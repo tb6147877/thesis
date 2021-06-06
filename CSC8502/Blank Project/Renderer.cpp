@@ -99,14 +99,33 @@ void Renderer::GenerateLights() {
 	//point lights
 	for (int i = 0; i < NUM_LIGHTS; i++)
 	{
+		//colorful lights
 		m_lights.push_back(new Light{ Light::LightType::Point, RandomLightPosition(dis,gen),LIGHT_RADIUS,Vector3{1.0f+(float)dis(gen),1.0f + (float)dis(gen),1.0f + (float)dis(gen)} });
+		
+		//white lights
 		//m_lights.push_back(new Light{ Light::LightType::Point, RandomLightPosition(dis,gen),LIGHT_RADIUS,Vector3{1.0f ,1.0f,1.0f} });
 		//dis(gen);//must has this line, or the random position is same
 	}
 
-	//fill light buffer for forward+
+	FillLightsSSBO();
+}
+
+void Renderer::UpdateLights(const float dt) {
+	for (int i = 0; i < NUM_LIGHTS; i++) {
+		float min = LIGHT_BORDER_MIN[1];
+		float max = LIGHT_BORDER_MAX[1];
+
+		Vector3 temp = m_lights[i]->GetPosition();
+		temp.y= fmod((temp.y + (-10.0f * dt) - min + max), max) + min;
+		m_lights[i]->SetPosition(temp);
+	}
+
+	FillLightsSSBO();
+}
+
+void Renderer::FillLightsSSBO(){
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightsSSBO);
-	PointLight* pointLights = (PointLight*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_WRITE);
+	PointLight* pointLights = (PointLight*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
 	for (int i = 0; i < NUM_LIGHTS; i++)
 	{
 		PointLight& light = pointLights[i];
@@ -115,10 +134,6 @@ void Renderer::GenerateLights() {
 	}
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
-
-void Renderer::UpdateLights() {
-
 }
 
 Vector3 Renderer::RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen) {
@@ -141,6 +156,7 @@ void Renderer::UpdateScene(float dt) {
 	m_camera->UpdateCamera(dt);
 	viewMatrix = m_camera->BuildViewMatrix();
 	m_frustum->FromMatrix(projMatrix*viewMatrix);
+	UpdateLights(dt);
 }
 
 void Renderer::RenderScene()	{

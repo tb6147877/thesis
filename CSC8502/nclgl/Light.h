@@ -19,6 +19,10 @@ public:
 		return m_position; 
 	}
 
+	void SetPosition(const Vector3& pos) {
+		m_position = pos;
+	}
+
 	float GetRadius() { 
 		return m_radius; 
 	}
