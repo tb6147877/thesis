@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	m_shadingType = ShadingType::Deferred;
+	m_shadingType = ShadingType::Forward;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -177,18 +177,10 @@ void Renderer::RenderScene()	{
 void Renderer::ForwardRendering(){
 	BindShader(m_modelShader);
 	UpdateShaderMatrices();
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightsSSBO);
 	glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
-	for (int i = 0; i < m_lights.size(); i++)
-	{
-		std::string temp{ "pointLights[" + std::to_string(i) + "]" };
-
-		glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), temp.append(".color").c_str()), 1, (float*)&m_lights[i]->GetColor());
-		temp = "pointLights[" + std::to_string(i) + "]";
-		glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), temp.append(".position").c_str()), 1, (float*)&m_lights[i]->GetPosition());
-		temp = "pointLights[" + std::to_string(i) + "]";
-		glUniform1f(glGetUniformLocation(m_modelShader->GetProgram(), temp.append(".radius").c_str()), m_lights[i]->GetRadius());
-	}
 	m_model->Draw(m_modelShader);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 }
 
 void Renderer::FillGBuffer() {
@@ -281,10 +273,10 @@ void Renderer::DepthPrePass(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//try to use depth pre pass to decrease over draw
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_depthPreHelper->GetFBO());
+	/*glBindFramebuffer(GL_READ_FRAMEBUFFER, m_depthPreHelper->GetFBO());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_finalHelper->GetFBO());
 	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
 }
 
 void Renderer::LightCullingPass() {
@@ -311,8 +303,8 @@ void Renderer::LightCullingPass() {
 
 void Renderer::CalculateLighting() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
-	glDepthFunc(GL_EQUAL);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//if we don't use depth pre pass, we need this statement
+	//glDepthFunc(GL_EQUAL);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//if we don't use depth pre pass, we need this statement
 	BindShader(m_fp_lightingShader);
 	UpdateShaderMatrices();
 	glUniform3fv(glGetUniformLocation(m_fp_lightingShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
@@ -320,7 +312,7 @@ void Renderer::CalculateLighting() {
 
 	m_model->Draw(m_fp_lightingShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(m_finalShader);
