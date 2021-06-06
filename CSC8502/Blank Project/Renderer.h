@@ -9,6 +9,7 @@
 #include "../nclgl/Quad.h"
 #include "../nclgl/Sphere.h"
 #include "../nclgl/ComputeShader.h"
+#include "../nclgl/Frustum.h"
 #include "DeferredRenderingHelper.h"
 #include "DepthPreHelper.h"
 #include "FinalOutputHelper.h"
@@ -59,6 +60,7 @@ protected:
 	DepthPreHelper* m_depthPreHelper;
 	FinalOutputHelper* m_finalHelper;
 	Shader* m_finalShader;
+	Frustum* m_frustum;
 	float m_exposure;
 
 	void GenerateLights();

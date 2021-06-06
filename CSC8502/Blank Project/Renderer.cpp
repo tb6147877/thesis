@@ -12,6 +12,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_deferredHelper = new DeferredRenderingHelper{ width,height };
 	m_depthPreHelper =new DepthPreHelper{ width,height };
 	m_finalHelper=new FinalOutputHelper{ width,height };
+	m_frustum = new Frustum{};
 
 	//split screen with 16*16 tiles
 	m_workGroupsX = (width + (width % 16)) / 16;//judge if the exceeded pixels greater than half of 16, if it is, will get more tile
@@ -72,6 +73,7 @@ Renderer::~Renderer(void)	{
 	delete m_depthPreHelper;
 	delete m_finalHelper;
 	delete m_finalShader;
+	delete m_frustum;
 
 	delete m_fillBufferShader;
 	delete m_lightingShader;
@@ -133,6 +135,7 @@ Vector3 Renderer::RandomLightPosition(std::uniform_real_distribution<> dis, std:
 void Renderer::UpdateScene(float dt) {
 	m_camera->UpdateCamera(dt);
 	viewMatrix = m_camera->BuildViewMatrix();
+	m_frustum->FromMatrix(projMatrix*viewMatrix);
 }
 
 void Renderer::RenderScene()	{
@@ -236,6 +239,10 @@ void Renderer::RenderLighting() {
 
 	for (int i = 0; i < m_lights.size(); i++)
 	{
+		if (!m_frustum->InsideFrustum(m_lights[i]->GetPosition(), m_lights[i]->GetRadius()))
+		{
+			continue;
+		}
 		glUniform1f(glGetUniformLocation(m_lightingShader->GetProgram(), "lightRadius"), m_lights[i]->GetRadius());
 		glUniform3fv(glGetUniformLocation(m_lightingShader->GetProgram(), "lightPos"), 1, (float*)&m_lights[i]->GetPosition());
 

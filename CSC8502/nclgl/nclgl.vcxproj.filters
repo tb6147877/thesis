@@ -38,6 +38,8 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="Frustum.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -87,6 +89,8 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Plane.h" />
+    <ClInclude Include="Frustum.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GLAD">
