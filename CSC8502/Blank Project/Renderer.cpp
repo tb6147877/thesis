@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	m_shadingType = ShadingType::Forward;
+	m_shadingType = ShadingType::Deferred;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -257,6 +257,9 @@ void Renderer::RenderLighting() {
 }
 
 void Renderer::CombineBuffer() {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	BindShader(m_combineShader);
 
 	glUniform1i(glGetUniformLocation(m_combineShader->GetProgram(), "diffuseTex"), 0);
@@ -271,6 +274,15 @@ void Renderer::CombineBuffer() {
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, m_deferredHelper->GetLightingSpecTex());
 
+	m_quad->Draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	BindShader(m_finalShader);
+	glUniform1i(glGetUniformLocation(m_finalShader->GetProgram(), "diffTex"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_finalHelper->GetTex());
+	glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), m_exposure);
 	m_quad->Draw();
 }
 
