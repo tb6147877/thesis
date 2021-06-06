@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
+
 	m_shadingType = ShadingType::ForwardPlus;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
@@ -89,6 +90,17 @@ Renderer::~Renderer(void)	{
 	{
 		delete m_lights[i];
 	}
+}
+
+void Renderer::GetComputeShaderLimit() {
+	int dim = 0; /* 0=x, 1=y, 2=z */
+	int maxSizeX,maxSizeY,maxSizeZ;
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxSizeX);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &maxSizeY);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &maxSizeZ);
+
+	int maxInvoc;
+	glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxInvoc);
 }
 
 void Renderer::GenerateLights() {

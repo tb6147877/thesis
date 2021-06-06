@@ -33,7 +33,7 @@ layout(std430, binding = 1) readonly buffer VisibleLightIndicesBuffer {
 
 #define NR_POINT_LIGHT 2000
 #define MAX_NR_LIGHT 2048
-
+#define TILE_SIZE 8
 
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos);
 
@@ -44,7 +44,7 @@ void main(){
 	vec3 normal=normalize(IN.TBN*normalize(n));
 
 	ivec2 location = ivec2(gl_FragCoord.xy);
-	ivec2 tileID = location / ivec2(16, 16);
+	ivec2 tileID = location / ivec2(TILE_SIZE, TILE_SIZE);
 	uint index = tileID.y * numberOfTilesX + tileID.x;
 
 	uint offset = index * MAX_NR_LIGHT;

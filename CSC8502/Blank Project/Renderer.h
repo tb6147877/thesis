@@ -48,7 +48,7 @@ protected:
 	const unsigned int NUM_LIGHTS = 2000;
 	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 100.0f;
-	const int TILE_SIZE = 16;
+	const int TILE_SIZE = 8;
 	const float LIGHT_BORDER_MIN[3]={ -1400.0f, 0.0f, -640.0f};
 	const float LIGHT_BORDER_MAX[3]={ 1300.0f,1400.0f, 560.0f };
 	
@@ -96,4 +96,5 @@ protected:
 	void DrawDepthDebug();
 	void DrawLightDebug();
 	void FillLightsSSBO();
+	void GetComputeShaderLimit();
 };
