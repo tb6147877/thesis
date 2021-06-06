@@ -1,8 +1,8 @@
-#include "Renderer.h"
+﻿#include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
-	m_shadingType = ShadingType::ForwardPlus;
+	m_shadingType = ShadingType::Deferred;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -103,6 +103,24 @@ void Renderer::GetComputeShaderLimit() {
 	glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxInvoc);
 }
 
+int Renderer::CalculateFPS(const float dt) {
+	static int fps = 0;
+	static float lastTime = 0; 
+	static int frameCount = 0;
+
+	++frameCount;
+
+	lastTime +=dt;
+	if (lastTime>=1.0f)
+	{
+		fps = frameCount;
+		frameCount = 0;
+		lastTime = 0.0f;
+	}
+	return fps;
+
+}
+
 void Renderer::GenerateLights() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -169,6 +187,7 @@ void Renderer::UpdateScene(float dt) {
 	viewMatrix = m_camera->BuildViewMatrix();
 	m_frustum->FromMatrix(projMatrix*viewMatrix);
 	UpdateLights(dt);
+	m_fps = CalculateFPS(dt);
 }
 
 void Renderer::RenderScene()	{

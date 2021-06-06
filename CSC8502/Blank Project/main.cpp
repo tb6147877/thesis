@@ -38,6 +38,8 @@ int main()	{
 		renderer.UpdateScene(w.GetTimer()->GetTimeDeltaSeconds());
 		renderer.RenderScene();
 		renderer.SwapBuffers();
+		//std::cout << renderer.GetFPS() << std::endl;
+		w.SetTitle("FPS:"+std::to_string(renderer.GetFPS()));
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_F5)) {
 			Shader::ReloadAllShaders();
 		}

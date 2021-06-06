@@ -44,6 +44,7 @@ public:
 
 	 void SwitchShadingType(const ShadingType type) { m_shadingType = type; }
 	 void SetExposure(const float x) { m_exposure += x; }
+	 int GetFPS() { return m_fps; }
 protected:
 	const unsigned int NUM_LIGHTS = 2000;
 	const int MAX_NUM_LIGHTS = 2048;
@@ -52,6 +53,7 @@ protected:
 	const float LIGHT_BORDER_MIN[3]={ -1400.0f, 0.0f, -640.0f};
 	const float LIGHT_BORDER_MAX[3]={ 1300.0f,1400.0f, 560.0f };
 	
+	int m_fps{0};
 	ShadingType m_shadingType;
 	Camera* m_camera;
 	Assimp_Model* m_model;
@@ -68,7 +70,7 @@ protected:
 	void GenerateLights();
 	void UpdateLights(const float dt);
 	Vector3 RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen);
-	
+	int CalculateFPS(const float dt);
 
 	//Forward Shading part
 	Shader* m_modelShader;
