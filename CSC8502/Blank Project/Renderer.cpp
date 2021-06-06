@@ -175,12 +175,24 @@ void Renderer::RenderScene()	{
 }
 
 void Renderer::ForwardRendering(){
+	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	BindShader(m_modelShader);
 	UpdateShaderMatrices();
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightsSSBO);
 	glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
 	m_model->Draw(m_modelShader);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	BindShader(m_finalShader);
+	glUniform1i(glGetUniformLocation(m_finalShader->GetProgram(), "diffTex"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_finalHelper->GetTex());
+	glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), m_exposure);
+	m_quad->Draw();
 }
 
 void Renderer::FillGBuffer() {
