@@ -2,7 +2,7 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
-	m_shadingType = ShadingType::Deferred;
+	m_shadingType = ShadingType::Forward;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -198,6 +198,7 @@ void Renderer::RenderScene()	{
 	{
 	case Renderer::Forward:
 		//0.Forward Rendering
+		DepthPrePass();
 		ForwardRendering();
 		break;
 	case Renderer::Deferred:
@@ -237,9 +238,17 @@ void Renderer::ForwardRendering(){
 	UpdateShaderMatrices();
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightsSSBO);
 	glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
+
+	glUniform2f(glGetUniformLocation(m_modelShader->GetProgram(), "pixelSize"), 1.0f / (float)width, 1.0f / (float)height);
+	glUniform1i(glGetUniformLocation(m_modelShader->GetProgram(), "depthTex"), 5);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, m_depthPreHelper->GetDepthTex());
+
 	m_model->Draw(m_modelShader);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(m_finalShader);

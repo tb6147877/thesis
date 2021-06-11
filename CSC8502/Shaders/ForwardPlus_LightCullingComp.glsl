@@ -110,7 +110,7 @@ void main(){
 
 		float distance = 0.0;
 		for (uint j = 0; j < 6; j++) {
-			distance = dot(position, frustumPlanes[j]) + radius;
+			distance = dot(position, frustumPlanes[j]) + radius;//xyz of a plane is normal, w is distance
 
 			if (distance <= 0.0) {
 				break;

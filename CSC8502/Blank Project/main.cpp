@@ -26,6 +26,9 @@ int main()	{
 		else if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
 			renderer.SwitchShadingType(Renderer::ShadingType::ForwardPlus_Debug_Lights);
 		}
+		else if (Window::GetKeyboard()->KeyDown(KEYBOARD_4)) {
+			renderer.SwitchShadingType(Renderer::ShadingType::ForwardPlus_Debug_Depth);
+		}
 
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_P)) {
 			renderer.SetExposure(0.01f);
