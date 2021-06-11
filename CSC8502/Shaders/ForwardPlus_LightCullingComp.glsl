@@ -69,30 +69,36 @@ void main(){
 
 	barrier();
 
-	//2.use one thread calculate the frustum planes
+	//2.use one thread calculate the frustum planes, this process same as CSC8502
 	if (gl_LocalInvocationIndex == 0) {
 		minDepth = uintBitsToFloat(minDepthInt);
 		maxDepth = uintBitsToFloat(maxDepthInt);
 
+		//map the plane's xyz to -1,1. 
+		//in x and : 0,1 => *2 => 0,2 => -1 => -1,1; 0,1 => *2 => 0,2 => *-1 => -2,0 => +1 => -1,1
 		vec2 negativeStep = (2.0 * vec2(tileID)) / vec2(tileNumber);
 		vec2 positiveStep = (2.0 * vec2(tileID + ivec2(1, 1))) / vec2(tileNumber);
 
+		//xyz of the plane is normal, and w is  distance
 		frustumPlanes[0] = vec4(1.0, 0.0, 0.0, 1.0 - negativeStep.x); // Left
 		frustumPlanes[1] = vec4(-1.0, 0.0, 0.0, -1.0 + positiveStep.x); // Right
 		frustumPlanes[2] = vec4(0.0, 1.0, 0.0, 1.0 - negativeStep.y); // Bottom
 		frustumPlanes[3] = vec4(0.0, -1.0, 0.0, -1.0 + positiveStep.y); // Top
-		frustumPlanes[4] = vec4(0.0, 0.0, -1.0, -minDepth); // Near
+		frustumPlanes[4] = vec4(0.0, 0.0, -1.0, -minDepth); // Near, origin is 0,1, also map to -1,1 by *-1
 		frustumPlanes[5] = vec4(0.0, 0.0, 1.0, maxDepth); // Far
+		//now this is a cube in word space, this is a original cube 
+		//*************************************
 
 		for (uint i = 0; i < 4; i++) {
-			frustumPlanes[i] *= viewProjection;
-			frustumPlanes[i] /= length(frustumPlanes[i].xyz);
+			//transform the cube into clip space, this cube is related to camera frustum 
+			frustumPlanes[i] *= viewProjection;//it is tilted, so need view and projection matrix
+			frustumPlanes[i] /= length(frustumPlanes[i].xyz);// normalize operation
 		}
 
-		frustumPlanes[4] *= viewMatrix;
-		frustumPlanes[4] /= length(frustumPlanes[4].xyz);
-		frustumPlanes[5] *= viewMatrix;
-		frustumPlanes[5] /= length(frustumPlanes[5].xyz);
+		frustumPlanes[4] *= viewMatrix;//near plane is not tilted, so it don't need projection matrix
+		frustumPlanes[4] /= length(frustumPlanes[4].xyz);// normalize operation
+		frustumPlanes[5] *= viewMatrix;//far plane is not tilted, so it don't need projection matrix
+		frustumPlanes[5] /= length(frustumPlanes[5].xyz);// normalize operation
 	}
 	barrier();
 

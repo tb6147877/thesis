@@ -16,6 +16,7 @@ uniform sampler2D texture_normal1;
 
 
 void main(){
+
 	diffTex=texture(texture_diffuse1,IN.texcoords);
 	diffTex.a=texture(texture_specular1,IN.texcoords).r;
 
