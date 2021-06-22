@@ -17,8 +17,8 @@ void main(){
 	vec3 diff = texture(diffuseLight, IN.texCoord).xyz;
 	vec3 spec = texture(specularLight, IN.texCoord).xyz;
 
-	fragColour.xyz = diffuse * 0.1;
-	fragColour.xyz += diffuse * diff;
-	fragColour.xyz += specular * spec;
+	fragColour.xyz = diffuse * 0.1;//ambient
+	fragColour.xyz += diffuse * diff;//diffuse
+	fragColour.xyz += specular * spec;//specular
 	fragColour.a = 1.0;
 }

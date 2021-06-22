@@ -22,6 +22,7 @@ _-_-_-_-_-_-_-""  ""
 
 class Vector3;
 
+//attention opengl use column-major
 class Matrix4	{
 public:
 	Matrix4(void);

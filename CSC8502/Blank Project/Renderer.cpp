@@ -2,7 +2,7 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
-	m_shadingType = ShadingType::ForwardPlus;
+	m_shadingType = ShadingType::Deferred;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
 	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
@@ -156,7 +156,7 @@ void Renderer::UpdateLights(const float dt) {
 void Renderer::FillLightsSSBO(){
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightsSSBO);
 	PointLight* pointLights = (PointLight*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-	for (int i = 0; i < NUM_LIGHTS; i++)
+	for (int i = 0; i < m_lights.size(); i++)
 	{
 		PointLight& light = pointLights[i];
 		light.color = Vector4{ m_lights[i]->GetColor().x,m_lights[i]->GetColor().y,m_lights[i]->GetColor().z,1.0f };
@@ -274,6 +274,7 @@ void Renderer::RenderLighting() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_deferredHelper->GetLightingFBO());
 	BindShader(m_lightingShader);
 	UpdateShaderMatrices();
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightsSSBO);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -305,6 +306,7 @@ void Renderer::RenderLighting() {
 		{
 			continue;
 		}
+		//std::cout << i << std::endl;
 		glUniform1f(glGetUniformLocation(m_lightingShader->GetProgram(), "lightRadius"), m_lights[i]->GetRadius());
 		glUniform3fv(glGetUniformLocation(m_lightingShader->GetProgram(), "lightPos"), 1, (float*)&m_lights[i]->GetPosition());
 
@@ -314,6 +316,30 @@ void Renderer::RenderLighting() {
 
 		m_sphere->Draw();
 	}
+	//std::cout << "-------------------------" << std::endl;
+
+	//optimize by draw instanced, but performance does not advanced
+	//std::vector<Light*> temp;
+	//for (int i = 0; i < m_lights.size(); i++)
+	//{
+	//	//frustum culling
+	//	if (m_frustum->InsideFrustum(m_lights[i]->GetPosition(), m_lights[i]->GetRadius()))
+	//	{
+	//		temp.push_back(m_lights[i]);
+	//	}
+	//}
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightsSSBO);
+	//PointLight* pointLights = (PointLight*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+	//for (int i = 0; i < temp.size(); i++)
+	//{
+	//	PointLight& light = pointLights[i];
+	//	light.color = Vector4{ temp[i]->GetColor().x,temp[i]->GetColor().y,temp[i]->GetColor().z,1.0f };
+	//	light.position_radius = Vector4{ temp[i]->GetPosition().x, temp[i]->GetPosition().y,temp[i]->GetPosition().z,temp[i]->GetRadius() };
+	//}
+	//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	//m_sphere->DrawInstanced(temp.size());
+	
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
@@ -323,6 +349,7 @@ void Renderer::RenderLighting() {
 	glClearColor(0.2f, 0.2f, 0.2f, 1);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 }
 
 void Renderer::CombineBuffer() {
@@ -377,6 +404,11 @@ void Renderer::LightCullingPass() {
 	glUniformMatrix4fv(glGetUniformLocation(m_lightCullingShader->GetProgram(), "viewMatrix"), 1, false, viewMatrix.values);
 	glUniformMatrix4fv(glGetUniformLocation(m_lightCullingShader->GetProgram(), "projMatrix"), 1, false, projMatrix.values);
 
+	/*Matrix4 invViewProj = (projMatrix * viewMatrix).Inverse();
+	glUniformMatrix4fv(glGetUniformLocation(m_lightCullingShader->GetProgram(), "inverseProjView"), 1, false, (float*)& invViewProj);
+	Matrix4 invView =  viewMatrix.Inverse();
+	glUniformMatrix4fv(glGetUniformLocation(m_lightCullingShader->GetProgram(), "inverseView"), 1, false, (float*)& invView);
+*/
 	glUniform1i(glGetUniformLocation(m_lightCullingShader->GetProgram(), "depthTex"), 4);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, m_depthPreHelper->GetDepthTex());

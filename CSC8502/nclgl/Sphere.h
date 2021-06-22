@@ -12,6 +12,7 @@ public:
 	Sphere();
 	~Sphere();
 	void Draw();
+	void DrawInstanced(const int number);
 private:
 	int indexCount;
 	GLuint VAO, VBO, EBO;

@@ -92,3 +92,9 @@ void Sphere::Draw(){
 	glDrawElements(GL_TRIANGLE_STRIP, indexCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
+
+void Sphere::DrawInstanced(const int number) {
+	glBindVertexArray(VAO);
+	glDrawElementsInstanced(GL_TRIANGLE_STRIP, indexCount, GL_UNSIGNED_INT, 0, number);
+	glBindVertexArray(0);
+}
