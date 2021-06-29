@@ -25,6 +25,22 @@ struct VisibleIndex
 	int index;
 };
 
+struct ClusterAABB
+{
+	Vector4 minPoint;
+	Vector4 maxPoint;
+};
+
+struct ClusterBasic
+{
+	Matrix4 inverseProjection;
+	unsigned int clusterSizes[4];
+	unsigned int screenWidth;
+	unsigned int screenHeight;
+	float sliceScalingFac;
+	float sliceBiasFac;
+};
+
 class Renderer : public OGLRenderer	{
 public:
 	enum ShadingType {
@@ -105,11 +121,13 @@ protected:
 	const GLuint CLUSTER_SIZE_X = 16;
 	const GLuint CLUSTER_SIZE_Y = 9;
 	const GLuint CLUSTER_SIZE_Z = 24;
+	float m_near=1.0f, m_far=3000.0f;
 	GLuint m_clusterNumber = CLUSTER_SIZE_X * CLUSTER_SIZE_Y * CLUSTER_SIZE_Z;
 	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, m_globalLightListSSBO, m_globalLightIndexListSSBO;
 	ComputeShader* m_c_generateClusterShader;
 	ComputeShader* m_c_lightCullingShader;
 	Shader* m_c_lightingShader;
+	ClusterBasic m_clusterBaisc;
 
 	void InitClusterRendering();
 };

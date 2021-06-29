@@ -11,7 +11,7 @@ layout (std430, binding=1) buffer ClusterAABB{
 	ClusterAABBVolume data[];
 }clusterAABBs;
 
-layout (std430, binding=2) buffer clusterBasicData{
+layout (std430, binding=2) buffer ClusterBasicData{
 	mat4 inverseProj;
     uvec4 clusterSizes;
     uvec2 screenSizes;

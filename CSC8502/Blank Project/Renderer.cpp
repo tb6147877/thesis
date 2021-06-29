@@ -5,7 +5,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_shadingType = ShadingType::Deferred;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
-	projMatrix = Matrix4::Perspective(1.0f, 3000.0f, (float)width / (float)height, 45.0f);
+	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
 
 	m_model = new Assimp_Model("sponza.obj");
 	m_quad = new Quad();
@@ -491,5 +491,28 @@ void Renderer::DrawLightDebug() {
 }
 
 void Renderer::InitClusterRendering() {
+	GLuint sizeX = (GLuint)std::ceilf(width / (float)CLUSTER_SIZE_X);
 
+	glGenBuffers(1, &m_clusterAABBSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_clusterAABBSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * sizeof(struct ClusterAABB), NULL, GL_STATIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_clusterAABBSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	//set cluster basic data
+	m_clusterBaisc.inverseProjection = projMatrix.Inverse();
+	m_clusterBaisc.clusterSizes[0] = CLUSTER_SIZE_X;
+	m_clusterBaisc.clusterSizes[1] = CLUSTER_SIZE_Y;
+	m_clusterBaisc.clusterSizes[2] = CLUSTER_SIZE_Z;
+	m_clusterBaisc.clusterSizes[3] = sizeX;
+	m_clusterBaisc.screenWidth = width;
+	m_clusterBaisc.screenHeight = height;
+	m_clusterBaisc.sliceScalingFac = (float)CLUSTER_SIZE_Z / std::log2f(m_far / m_near);
+	m_clusterBaisc.sliceBiasFac= -((float)CLUSTER_SIZE_Z * std::log2f(m_near) / std::log2f(m_far / m_near));
+
+	glGenBuffers(1, &m_clusterBasicSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_clusterBasicSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(struct ClusterBasic), &m_clusterBasicSSBO, GL_STATIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
