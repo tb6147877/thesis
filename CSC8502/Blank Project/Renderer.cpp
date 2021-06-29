@@ -44,6 +44,10 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_fp_depthDebugShader = new Shader("DepthDebugVert.glsl","DepthDebugFrag.glsl");
 	m_fp_lightDebugShader = new Shader("ForwardPlus_LightingDebugVert.glsl", "ForwardPlus_LightingDebugFrag.glsl");
 
+	m_c_generateClusterShader = new ComputeShader("Cluster_GenerateClusterComp.glsl");
+	//m_c_lightingShader = new Shader("Cluster_LightingVert.glsl","Cluster_LightingFrag.glsl");
+	//m_c_lightCullingShader = new ComputeShader("Cluster_LightCullingComp.glsl");
+
 	if (!m_modelShader->LoadSuccess() 
 		|| !m_finalShader->LoadSuccess()
 		|| !m_fillBufferShader->LoadSuccess() 
@@ -58,6 +62,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	}
 
 	GenerateLights();
+	InitClusterRendering();
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -85,6 +90,10 @@ Renderer::~Renderer(void)	{
 	delete m_fp_lightingShader;
 	delete m_fp_depthDebugShader;
 	delete m_fp_lightDebugShader;
+
+	delete m_c_generateClusterShader;
+	//delete m_c_lightingShader;
+	//delete m_c_lightCullingShader;
 
 	for (int i = 0; i < m_lights.size(); i++)
 	{
@@ -479,4 +488,8 @@ void Renderer::DrawLightDebug() {
 	m_model->Draw(m_fp_lightDebugShader);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+}
+
+void Renderer::InitClusterRendering() {
+
 }

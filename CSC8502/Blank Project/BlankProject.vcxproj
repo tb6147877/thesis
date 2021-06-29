@@ -98,16 +98,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Users\c0000378\Documents\ncl_thesis\thesis\CSC8502\Third Party\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>assimp-vc141-mt.lib;nclgl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\c0000378\Documents\ncl_thesis\thesis\CSC8502\Third Party\assimp_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\assimp_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "C:\Users\c0000378\Documents\ncl_thesis\thesis\CSC8502\Third Party\assimp_lib\assimp-vc141-mt.dll" "$(OutDir)"</Command>
+      <Command>xcopy /y /d "C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\assimp_lib\assimp-vc141-mt.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

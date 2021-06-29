@@ -14,7 +14,7 @@ uniform int totalLightCount;
 out vec4 fragColor;
 
 #define MAX_NR_LIGHT 2048
-#define NR_POINT_LIGHT 2000
+#define NR_POINT_LIGHT 1000
 #define TILE_SIZE 8
 
 void main() {

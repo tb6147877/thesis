@@ -31,7 +31,7 @@ layout(std430, binding = 1) readonly buffer VisibleLightIndicesBuffer {
 	VisibleIndex data[];
 } visibleLightIndicesBuffer;
 
-#define NR_POINT_LIGHT 2000
+#define NR_POINT_LIGHT 1000
 #define MAX_NR_LIGHT 2048
 #define TILE_SIZE 8
 

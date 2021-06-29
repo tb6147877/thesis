@@ -46,7 +46,7 @@ public:
 	 void SetExposure(const float x) { m_exposure += x; }
 	 int GetFPS() { return m_fps; }
 protected:
-	const unsigned int NUM_LIGHTS = 2000;
+	const unsigned int NUM_LIGHTS = 1000;
 	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 100.0f;
 	const int TILE_SIZE = 8;
@@ -99,4 +99,17 @@ protected:
 	void DrawLightDebug();
 	void FillLightsSSBO();
 	void GetComputeShaderLimit();
+
+	//cluster part
+	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 50;
+	const GLuint CLUSTER_SIZE_X = 16;
+	const GLuint CLUSTER_SIZE_Y = 9;
+	const GLuint CLUSTER_SIZE_Z = 24;
+	GLuint m_clusterNumber = CLUSTER_SIZE_X * CLUSTER_SIZE_Y * CLUSTER_SIZE_Z;
+	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, m_globalLightListSSBO, m_globalLightIndexListSSBO;
+	ComputeShader* m_c_generateClusterShader;
+	ComputeShader* m_c_lightCullingShader;
+	Shader* m_c_lightingShader;
+
+	void InitClusterRendering();
 };
