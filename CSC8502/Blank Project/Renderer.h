@@ -123,11 +123,13 @@ protected:
 	const GLuint CLUSTER_SIZE_Z = 24;
 	float m_near=1.0f, m_far=3000.0f;
 	GLuint m_clusterNumber = CLUSTER_SIZE_X * CLUSTER_SIZE_Y * CLUSTER_SIZE_Z;
-	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, m_globalLightListSSBO, m_globalLightIndexListSSBO;
+	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, m_globalLightIndexCountSSBO, m_lightIndexListSSBO;
 	ComputeShader* m_c_generateClusterShader;
 	ComputeShader* m_c_lightCullingShader;
 	Shader* m_c_lightingShader;
 	ClusterBasic m_clusterBaisc;
 
 	void InitClusterRendering();
+	void ClusterLightCulling();
+	void ClusterCalculateLighting();
 };

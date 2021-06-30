@@ -223,7 +223,8 @@ void Renderer::RenderScene()	{
 		CalculateLighting();
 		break;
 	case Renderer::Cluster:
-
+		ClusterLightCulling();
+		ClusterCalculateLighting();
 		break;
 	case Renderer::ForwardPlus_Debug_Depth:
 		DrawDepthDebug();
@@ -493,11 +494,10 @@ void Renderer::DrawLightDebug() {
 void Renderer::InitClusterRendering() {
 	GLuint sizeX = (GLuint)std::ceilf(width / (float)CLUSTER_SIZE_X);
 
+	//init AABB space of clusters
 	glGenBuffers(1, &m_clusterAABBSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_clusterAABBSSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * sizeof(struct ClusterAABB), NULL, GL_STATIC_COPY);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_clusterAABBSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	//set cluster basic data
 	m_clusterBaisc.inverseProjection = projMatrix.Inverse();
@@ -513,6 +513,41 @@ void Renderer::InitClusterRendering() {
 	glGenBuffers(1, &m_clusterBasicSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_clusterBasicSSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(struct ClusterBasic), &m_clusterBasicSSBO, GL_STATIC_COPY);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
+
+	//init space of light index list
+	unsigned int totalNumLights = m_clusterNumber * MAX_LIGHT_NUMBER_PER_CLUSTER;
+	glGenBuffers(1, &m_lightIndexListSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightIndexListSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, totalNumLights * sizeof(unsigned int), NULL, GL_STATIC_COPY);
+
+	//init space of light grids
+	glGenBuffers(1, &m_lightGridsSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightGridsSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * 2 * sizeof(unsigned int), NULL, GL_STATIC_COPY);
+
+	//init space of light index count
+	glGenBuffers(1, &m_globalLightIndexCountSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_globalLightIndexCountSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), NULL, GL_STATIC_COPY);
+
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	//calculate AABB of cluster only once
+	m_c_generateClusterShader->Bind();
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_clusterAABBSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
+	glUniform1f(glGetUniformLocation(m_c_generateClusterShader->GetProgram(), "zNear"), m_near);
+	glUniform1f(glGetUniformLocation(m_c_generateClusterShader->GetProgram(), "zFar"), m_far);
+	m_c_generateClusterShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
+}
+
+void Renderer::ClusterLightCulling(){
+
+	
+
+}
+
+
+void Renderer::ClusterCalculateLighting() {
+
 }
