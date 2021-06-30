@@ -21,6 +21,7 @@ layout (std430, binding=1) buffer ClusterAABB{
 	ClusterAABBVolume data[];
 } clusterAABBs;
 
+//todo 应该先删除，在本shader根本没有用
 layout (std430, binding=2) readonly buffer ClusterBasicData{
 	mat4 inverseProj;
     uvec4 clusterSizes;

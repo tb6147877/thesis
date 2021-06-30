@@ -8,6 +8,7 @@ out vec4 fragColor;
 // Need to linearize the depth because we are using the projection
 float LinearizeDepth(float depth) {
 	float z = depth * 2.0 - 1.0;
+	//this is a formula which can linearize depth value
 	return (2.0 * near * far) / (far + near - z * (far - near));
 }
 

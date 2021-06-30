@@ -45,8 +45,8 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_fp_lightDebugShader = new Shader("ForwardPlus_LightingDebugVert.glsl", "ForwardPlus_LightingDebugFrag.glsl");
 
 	m_c_generateClusterShader = new ComputeShader("Cluster_GenerateClusterComp.glsl");
-	//m_c_lightingShader = new Shader("Cluster_LightingVert.glsl","Cluster_LightingFrag.glsl");
-	//m_c_lightCullingShader = new ComputeShader("Cluster_LightCullingComp.glsl");
+	m_c_lightingShader = new Shader("Cluster_LightingVert.glsl","Cluster_LightingFrag.glsl");
+	m_c_lightCullingShader = new ComputeShader("Cluster_LightCullingComp.glsl");
 
 	if (!m_modelShader->LoadSuccess() 
 		|| !m_finalShader->LoadSuccess()
@@ -57,6 +57,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 		|| !m_fp_lightingShader->LoadSuccess()
 		|| !m_fp_depthDebugShader->LoadSuccess()
 		|| !m_fp_lightDebugShader->LoadSuccess()
+		|| !m_c_lightingShader->LoadSuccess()
 		) {
 		return;
 	}
@@ -92,8 +93,8 @@ Renderer::~Renderer(void)	{
 	delete m_fp_lightDebugShader;
 
 	delete m_c_generateClusterShader;
-	//delete m_c_lightingShader;
-	//delete m_c_lightCullingShader;
+	delete m_c_lightingShader;
+	delete m_c_lightCullingShader;
 
 	for (int i = 0; i < m_lights.size(); i++)
 	{
@@ -539,15 +540,57 @@ void Renderer::InitClusterRendering() {
 	glUniform1f(glGetUniformLocation(m_c_generateClusterShader->GetProgram(), "zNear"), m_near);
 	glUniform1f(glGetUniformLocation(m_c_generateClusterShader->GetProgram(), "zFar"), m_far);
 	m_c_generateClusterShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
 }
 
 void Renderer::ClusterLightCulling(){
+	m_c_lightCullingShader->Bind();
+	glUniformMatrix4fv(glGetUniformLocation(m_c_lightCullingShader->GetProgram(), "viewMatrix"), 1, false, viewMatrix.values);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_clusterAABBSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_lightsSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_lightIndexListSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_lightGridsSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_globalLightIndexCountSSBO);
+	m_c_lightCullingShader->Dispatch(1, 1, 6);
 
-	
-
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, 0);
 }
 
 
 void Renderer::ClusterCalculateLighting() {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	BindShader(m_c_lightingShader);
+	UpdateShaderMatrices();
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_lightsSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_lightIndexListSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_lightGridsSSBO);
+	glUniform3fv(glGetUniformLocation(m_c_lightingShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
+	glUniform1f(glGetUniformLocation(m_c_lightingShader->GetProgram(), "zNear"), m_near);
+	glUniform1f(glGetUniformLocation(m_c_lightingShader->GetProgram(), "zFar"), m_far);
+	m_model->Draw(m_c_lightingShader);
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	BindShader(m_finalShader);
+	glUniform1i(glGetUniformLocation(m_finalShader->GetProgram(), "diffTex"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_finalHelper->GetTex());
+	glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), m_exposure);
+	m_quad->Draw();
 }
