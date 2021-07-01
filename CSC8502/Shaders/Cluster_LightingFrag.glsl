@@ -22,7 +22,7 @@ struct LightGrid{
     uint count;
 };
 
-layout (std430, binding=2) readonly buffer ClusterBasicData{
+layout (std430, binding = 1) readonly buffer ClusterBasicData{
 	mat4 inverseProj;
     uvec4 clusterSizes;
     uvec2 screenSizes;
@@ -30,15 +30,15 @@ layout (std430, binding=2) readonly buffer ClusterBasicData{
     float bias;
 };
 
-layout(std430, binding = 3) readonly buffer LightBuffer {
+layout(std430, binding = 2) readonly buffer LightBuffer {
 	PointLight data[];
 } lightBuffer;
 
-layout (std430, binding = 4) readonly buffer LightIndexSSBO{
+layout (std430, binding = 3) readonly buffer LightIndexSSBO{
     uint data[];
 } lightIndexList;
 
-layout (std430, binding = 5) readonly buffer LightGridSSBO{
+layout (std430, binding = 4) readonly buffer LightGridSSBO{
     LightGrid data[];
 } lightGrids;
 

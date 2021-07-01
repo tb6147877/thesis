@@ -17,30 +17,23 @@ struct ClusterAABBVolume{
     vec4 maxPoint;
 };
 
-layout (std430, binding=1) buffer ClusterAABB{
+layout (std430, binding = 1) buffer ClusterAABB{
 	ClusterAABBVolume data[];
 } clusterAABBs;
 
-//todo delete
-layout (std430, binding=2) readonly buffer ClusterBasicData{
-	mat4 inverseProj;
-    uvec4 clusterSizes;
-    uvec2 screenSizes;
-};
-
-layout(std430, binding = 3) readonly buffer LightBuffer {
+layout(std430, binding = 2) readonly buffer LightBuffer {
 	PointLight data[];
 } lightBuffer;
 
-layout (std430, binding = 4) writeonly buffer LightIndexSSBO{
+layout (std430, binding = 3) writeonly buffer LightIndexSSBO{
     uint data[];
 } lightIndexList;
 
-layout (std430, binding = 5) writeonly buffer LightGridSSBO{
+layout (std430, binding = 4) writeonly buffer LightGridSSBO{
     LightGrid data[];
 } lightGrids;
 
-layout (std430, binding = 6) buffer GlobalIndexCountSSBO{
+layout (std430, binding = 5) buffer GlobalIndexCountSSBO{
     uint globalIndexCount;
 };
 
