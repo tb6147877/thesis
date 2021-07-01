@@ -37,8 +37,8 @@ void main(){
 					  gl_WorkGroupID.z*gl_NumWorkGroups.x*gl_NumWorkGroups.y;
 
 	//get min and max point in screen space
-	vec4 maxPointSs=vec4(vec2(gl_WorkGroupID.x+1,gl_WorkGroupID.y+1)*clusterSizeX,-1.0.1.0);//top right
-	vec4 minPointSs=vec4(gl_WorkGroupID.xy*clusterSizeX,-1.0.1.0);//bottom left
+	vec4 maxPointSs=vec4(vec2(gl_WorkGroupID.x+1,gl_WorkGroupID.y+1)*clusterSizeX,-1.0,1.0);//top right
+	vec4 minPointSs=vec4(gl_WorkGroupID.xy*clusterSizeX,-1.0,1.0);//bottom left
 
 	//transform to view space
 	vec3 maxPointVs=screen2View(maxPointSs).xyz;
@@ -59,8 +59,8 @@ void main(){
 	vec3 maxAABB=max(max(minPointNear,minPointFar),max(maxPointNear,maxPointFar));
 
 	//assign value
-	clusterAABBs.data[clusterIndex].minPoint=minAABB;
-	clusterAABBs.data[clusterIndex].maxPoint=maxAABB;
+	clusterAABBs.data[clusterIndex].minPoint=vec4(minAABB,0.0);
+	clusterAABBs.data[clusterIndex].maxPoint=vec4(maxAABB,0.0);
 }
 
 //from screen space to view space

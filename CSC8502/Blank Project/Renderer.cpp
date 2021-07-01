@@ -513,7 +513,7 @@ void Renderer::InitClusterRendering() {
 
 	glGenBuffers(1, &m_clusterBasicSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_clusterBasicSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(struct ClusterBasic), &m_clusterBasicSSBO, GL_STATIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(struct ClusterBasic), &m_clusterBaisc, GL_STATIC_COPY);
 
 	//init space of light index list
 	unsigned int totalNumLights = m_clusterNumber * MAX_LIGHT_NUMBER_PER_CLUSTER;

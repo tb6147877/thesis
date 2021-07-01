@@ -21,7 +21,7 @@ layout (std430, binding=1) buffer ClusterAABB{
 	ClusterAABBVolume data[];
 } clusterAABBs;
 
-//todo 应该先删除，在本shader根本没有用
+//todo delete
 layout (std430, binding=2) readonly buffer ClusterBasicData{
 	mat4 inverseProj;
     uvec4 clusterSizes;
@@ -64,7 +64,7 @@ void main(){
     for(int i=0;i<batchNumbers;i++){
         uint lightIndex = i * threadCount + gl_LocalInvocationIndex;
         lightIndex = min(lightIndex, lightCount);
-        sharedLights[gl_LocalInvocationIndex] = pointLight[lightIndex];
+        sharedLights[gl_LocalInvocationIndex] = lightBuffer.data[lightIndex];
         barrier();
 
         for(int j=0;j<threadCount;j++){
