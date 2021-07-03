@@ -54,6 +54,8 @@ vec3 sliceColors[8] = vec3[](
    vec3(1,  0,  0),  vec3( 1,  0,  1), vec3( 1, 1, 0),  vec3(1, 1, 1)
 );
 
+
+
 void main(){
 
     vec3 result=vec3(0.0);

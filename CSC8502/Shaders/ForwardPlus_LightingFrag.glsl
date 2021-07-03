@@ -35,16 +35,16 @@ layout(std430, binding = 1) readonly buffer VisibleLightIndicesBuffer {
 #define MAX_NR_LIGHT 2048
 #define TILE_SIZE 8
 
-uniform sampler2D depthTex;
-uniform vec2 pixelSize;
+// uniform sampler2D depthTex;
+// uniform vec2 pixelSize;
 
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos);
 
 void main(){
-	vec2 texCoord = vec2(gl_FragCoord.xy * pixelSize);
- 	float depth = texture(depthTex, texCoord.xy).r;
- 	if(depth!=gl_FragCoord.z)//depth pre pass is work and fps increase 1-2. so this condition don't appear branch
- 		discard;
+	// vec2 texCoord = vec2(gl_FragCoord.xy * pixelSize);
+ 	// float depth = texture(depthTex, texCoord.xy).r;
+ 	// if(depth!=gl_FragCoord.z)//depth pre pass is work and fps increase 1-2. so this condition don't appear branch
+ 	// 	discard;
 
 	vec3 result=vec3(0.0);
 	vec3 viewDir=normalize(IN.viewPos-IN.fragPos);

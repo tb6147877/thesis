@@ -12,9 +12,6 @@ uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
 
-uniform sampler2D depthTex;
-uniform vec2 pixelSize;
-
 struct PointLight{
     vec4 color;
     vec4 position_radius;
@@ -30,10 +27,6 @@ layout(std430, binding = 0) readonly buffer LightBuffer {
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos);
 
 void main(){
-	vec2 texCoord = vec2(gl_FragCoord.xy * pixelSize);
- 	float depth = texture(depthTex, texCoord.xy).r;
- 	if(depth!=gl_FragCoord.z)//depth pre pass is work and fps increase 2. so this condition don't appear branch
- 		discard;
 
  	vec3 result=vec3(0.0);
 	vec3 viewDir=normalize(IN.viewPos-IN.fragPos);

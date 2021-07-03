@@ -2,7 +2,7 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
-	m_shadingType = ShadingType::Cluster;
+	m_shadingType = ShadingType::Forward;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 0.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
@@ -224,7 +224,8 @@ void Renderer::RenderScene()	{
 		CalculateLighting();
 		break;
 	case Renderer::Cluster:
-		//DepthPrePass();
+		//3.Cluster Forward Rendering
+		DepthPrePass();
 		ClusterLightCulling();
 		ClusterCalculateLighting();
 		break;
@@ -244,23 +245,17 @@ void Renderer::RenderScene()	{
 
 void Renderer::ForwardRendering(){
 	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_FALSE);
 	BindShader(m_modelShader);
 	UpdateShaderMatrices();
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightsSSBO);
 	glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
 
-	glUniform2f(glGetUniformLocation(m_modelShader->GetProgram(), "pixelSize"), 1.0f / (float)width, 1.0f / (float)height);
-	glUniform1i(glGetUniformLocation(m_modelShader->GetProgram(), "depthTex"), 5);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, m_depthPreHelper->GetDepthTex());
-
 	m_model->Draw(m_modelShader);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(m_finalShader);
@@ -396,7 +391,9 @@ void Renderer::CombineBuffer() {
 
 
 void Renderer::DepthPrePass(){
-	
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, m_depthPreHelper->GetFBO());
 	glClear(GL_DEPTH_BUFFER_BIT);
 	BindShader(m_depthPreShader);
@@ -405,10 +402,10 @@ void Renderer::DepthPrePass(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//try to use depth pre pass to decrease over draw
-	/*glBindFramebuffer(GL_READ_FRAMEBUFFER, m_depthPreHelper->GetFBO());
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_depthPreHelper->GetFBO());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_finalHelper->GetFBO());
 	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::LightCullingPass() {
@@ -440,23 +437,26 @@ void Renderer::LightCullingPass() {
 
 void Renderer::CalculateLighting() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
-	//glDepthFunc(GL_EQUAL);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//if we don't use depth pre pass, we need this statement
+
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//if we don't use depth pre pass, we need this statement
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_FALSE);
 	BindShader(m_fp_lightingShader);
 	UpdateShaderMatrices();
 	glUniform3fv(glGetUniformLocation(m_fp_lightingShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
 	glUniform1i(glGetUniformLocation(m_fp_lightingShader->GetProgram(), "numberOfTilesX"), m_workGroupsX);
 
-	glUniform2f(glGetUniformLocation(m_fp_lightingShader->GetProgram(), "pixelSize"), 1.0f / (float)width, 1.0f / (float)height);
+	/*glUniform2f(glGetUniformLocation(m_fp_lightingShader->GetProgram(), "pixelSize"), 1.0f / (float)width, 1.0f / (float)height);
 	glUniform1i(glGetUniformLocation(m_fp_lightingShader->GetProgram(), "depthTex"), 5);
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, m_depthPreHelper->GetDepthTex());
+	glBindTexture(GL_TEXTURE_2D, m_depthPreHelper->GetDepthTex());*/
 
 	m_model->Draw(m_fp_lightingShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	//glDepthFunc(GL_LESS);
+	/*glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, 0);*/
+
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(m_finalShader);
@@ -559,8 +559,9 @@ void Renderer::ClusterLightCulling(){
 
 void Renderer::ClusterCalculateLighting() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glClear(GL_COLOR_BUFFER_BIT);//we should retain depth buffer
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_FALSE);
 	BindShader(m_c_lightingShader);
 	UpdateShaderMatrices();
 
@@ -569,7 +570,7 @@ void Renderer::ClusterCalculateLighting() {
 	glUniform1f(glGetUniformLocation(m_c_lightingShader->GetProgram(), "zFar"), m_far);
 	glUniform1i(glGetUniformLocation(m_c_lightingShader->GetProgram(), "showSlice"), m_showSlices);
 	m_model->Draw(m_c_lightingShader);
-	
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
