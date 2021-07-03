@@ -1,5 +1,6 @@
 #version 430 core
 
+//layout(local_size_x = 18, local_size_y = 12, local_size_z = 6) in;
 layout(local_size_x = 16, local_size_y = 9, local_size_z = 4) in;
 
 struct PointLight {
@@ -21,19 +22,19 @@ layout (std430, binding = 1) buffer ClusterAABB{
 	ClusterAABBVolume data[];
 } clusterAABBs;
 
-layout(std430, binding = 2) readonly buffer LightBuffer {
+layout(std430, binding = 3) buffer LightBuffer {
 	PointLight data[];
 } lightBuffer;
 
-layout (std430, binding = 3) writeonly buffer LightIndexSSBO{
+layout (std430, binding = 4) buffer LightIndexSSBO{
     uint data[];
 } lightIndexList;
 
-layout (std430, binding = 4) writeonly buffer LightGridSSBO{
+layout (std430, binding = 5) buffer LightGridSSBO{
     LightGrid data[];
 } lightGrids;
 
-layout (std430, binding = 5) buffer GlobalIndexCountSSBO{
+layout (std430, binding = 6) buffer GlobalIndexCountSSBO{
     uint globalIndexCount;
 };
 
@@ -46,31 +47,25 @@ float squaredDistancePointAndAABB(vec3 point, uint cluster);
 
 void main(){
     globalIndexCount=0;
-    uint threadCount = gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z;
     uint lightCount  = lightBuffer.data.length();
-    uint batchNumbers = (lightCount + threadCount -1) / threadCount;
 
     uint clusterIndex = gl_LocalInvocationIndex + gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z * gl_WorkGroupID.z;
     uint visibleLightCount = 0;
-    uint visibleLightIndices[100];
+    uint visibleLightIndices[50];
 
-    for(int i=0;i<batchNumbers;i++){
-        uint lightIndex = i * threadCount + gl_LocalInvocationIndex;
-        lightIndex = min(lightIndex, lightCount);
-        sharedLights[gl_LocalInvocationIndex] = lightBuffer.data[lightIndex];
-        barrier();
-
-        for(int j=0;j<threadCount;j++){
-            if(detectSphereAABB(j,clusterIndex)){
-                visibleLightIndices[visibleLightCount]=i*threadCount+j;
+    for(int i=0;i<lightCount;i++){
+        if(detectSphereAABB(i,clusterIndex)){
+                if(visibleLightCount>=50){break;}
+                visibleLightIndices[visibleLightCount]=i;
                 visibleLightCount+=1;
             }
-        }
     }
 
+    
     barrier();
 
     uint offset = atomicAdd(globalIndexCount, visibleLightCount);
+    //uint offset = clusterIndex*50;
 
     for(uint i = 0; i < visibleLightCount; ++i){
         lightIndexList.data[offset + i] = visibleLightIndices[i];
@@ -78,15 +73,16 @@ void main(){
 
     lightGrids.data[clusterIndex].offset = offset;
     lightGrids.data[clusterIndex].count = visibleLightCount;
+    
 }
 
 bool detectSphereAABB(uint light, uint cluster){
-    float radius = sharedLights[light].position_radius.w;
-    vec4 pos = vec4(sharedLights[light].position_radius.xyz,1.0);
+    float radius = lightBuffer.data[light].position_radius.w;
+    vec4 pos = vec4(lightBuffer.data[light].position_radius.xyz,1.0);
     vec3 center  = vec3(viewMatrix * pos);
     float squaredDistance = squaredDistancePointAndAABB(center, cluster);
 
-    return squaredDistance <= (radius * radius);
+    return squaredDistance - (radius * radius) <= 0.0;
 }
 
 float squaredDistancePointAndAABB(vec3 point, uint cluster){

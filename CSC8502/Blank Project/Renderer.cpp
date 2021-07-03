@@ -4,7 +4,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	m_shadingType = ShadingType::Cluster;
 	m_exposure = 1.0f;
-	m_camera = new Camera(0.0f, 0.0f, Vector3{ 0.0f,0.0f,0.0f });
+	m_camera = new Camera(0.0f, 90.0f, Vector3{ 0.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
 
 	m_model = new Assimp_Model("sponza.obj");
@@ -542,25 +542,18 @@ void Renderer::InitClusterRendering() {
 	glUniform1f(glGetUniformLocation(m_c_generateClusterShader->GetProgram(), "zFar"), m_far);
 	m_c_generateClusterShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
 
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
 }
 
 void Renderer::ClusterLightCulling(){
 	m_c_lightCullingShader->Bind();
 	glUniformMatrix4fv(glGetUniformLocation(m_c_lightCullingShader->GetProgram(), "viewMatrix"), 1, false, viewMatrix.values);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_clusterAABBSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_lightsSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_lightIndexListSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_lightGridsSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_globalLightIndexCountSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_lightsSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_lightIndexListSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_lightGridsSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_globalLightIndexCountSSBO);
 	m_c_lightCullingShader->Dispatch(1, 1, 6);
-
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
 }
 
 
@@ -570,13 +563,11 @@ void Renderer::ClusterCalculateLighting() {
 
 	BindShader(m_c_lightingShader);
 	UpdateShaderMatrices();
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_clusterBasicSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_lightsSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_lightIndexListSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_lightGridsSSBO);
+
 	glUniform3fv(glGetUniformLocation(m_c_lightingShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
 	glUniform1f(glGetUniformLocation(m_c_lightingShader->GetProgram(), "zNear"), m_near);
 	glUniform1f(glGetUniformLocation(m_c_lightingShader->GetProgram(), "zFar"), m_far);
+	glUniform1i(glGetUniformLocation(m_c_lightingShader->GetProgram(), "showSlice"), m_showSlices);
 	m_model->Draw(m_c_lightingShader);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -584,6 +575,8 @@ void Renderer::ClusterCalculateLighting() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, 0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(m_finalShader);

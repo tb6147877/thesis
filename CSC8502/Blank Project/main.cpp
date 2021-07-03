@@ -30,6 +30,14 @@ int main()	{
 			renderer.SwitchShadingType(Renderer::ShadingType::ForwardPlus_Debug_Depth);
 		}
 
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_8)) {
+			renderer.SetShowSlice(true);
+		}
+
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_9)) {
+			renderer.SetShowSlice(false);
+		}
+
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_P)) {
 			renderer.SetExposure(0.01f);
 		}

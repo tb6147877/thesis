@@ -22,7 +22,7 @@ struct LightGrid{
     uint count;
 };
 
-layout (std430, binding = 1) readonly buffer ClusterBasicData{
+layout (std430, binding = 2) buffer ClusterBasicData{
 	mat4 inverseProj;
     uvec4 clusterSizes;
     uvec2 screenSizes;
@@ -30,25 +30,32 @@ layout (std430, binding = 1) readonly buffer ClusterBasicData{
     float bias;
 };
 
-layout(std430, binding = 2) readonly buffer LightBuffer {
+layout(std430, binding = 3) buffer LightBuffer {
 	PointLight data[];
 } lightBuffer;
 
-layout (std430, binding = 3) readonly buffer LightIndexSSBO{
+layout (std430, binding = 4) buffer LightIndexSSBO{
     uint data[];
 } lightIndexList;
 
-layout (std430, binding = 4) readonly buffer LightGridSSBO{
+layout (std430, binding = 5) buffer LightGridSSBO{
     LightGrid data[];
 } lightGrids;
 
 uniform float zFar;
 uniform float zNear;
+uniform bool showSlice;
 
 float linearDepth(float depth);
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos);
 
+vec3 sliceColors[8] = vec3[](
+   vec3(0, 0, 0),    vec3( 0,  0,  1), vec3( 0, 1, 0),  vec3(0, 1,  1),
+   vec3(1,  0,  0),  vec3( 1,  0,  1), vec3( 1, 1, 0),  vec3(1, 1, 1)
+);
+
 void main(){
+
     vec3 result=vec3(0.0);
 	vec3 viewDir=normalize(IN.viewPos-IN.fragPos);
 	vec3 n=vec3(texture(texture_normal1,IN.texcoords))*2.0-1.0;
@@ -67,7 +74,12 @@ void main(){
         result+=calculatePointLight(light, viewDir, normal, IN.fragPos);
     }
 
-    FragColor=vec4(result,1.0);
+    if(showSlice){
+        FragColor = vec4(sliceColors[uint(mod(float(slice), 8.0))], 1.0);
+    }else{
+        FragColor=vec4(result,1.0);
+    }
+    
 }
 
 

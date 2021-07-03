@@ -128,11 +128,11 @@ void Camera::HandUpdate(float dt) {
 
 	}
 
-	if (Window::GetKeyboard()->KeyDown(KEYBOARD_SHIFT)) {
+	if (Window::GetKeyboard()->KeyDown(KEYBOARD_UP)) {
 		position.y += velocity;
 
 	}
-	if (Window::GetKeyboard()->KeyDown(KEYBOARD_SPACE)) {
+	if (Window::GetKeyboard()->KeyDown(KEYBOARD_DOWN)) {
 		position.y -= velocity;
 	}
 	/*std::cout << "yaw" << yaw << "\n";

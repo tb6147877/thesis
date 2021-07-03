@@ -1,6 +1,6 @@
 #version 430 core
 
-layout(local_size_x = 1, local_size_y = 1) in;//only one thread in the work group
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;//only one thread in the work group
 
 struct ClusterAABBVolume{
 	vec4 minPoint;
@@ -15,6 +15,8 @@ layout (std430, binding=2) buffer ClusterBasicData{
 	mat4 inverseProj;
     uvec4 clusterSizes;
     uvec2 screenSizes;
+	float scale;
+    float bias;
 };
 
 uniform float zNear;
@@ -28,7 +30,7 @@ vec3 lineIntersection2ZPlane(vec3 A, vec3 B, float z);
 const vec3 eyePos=vec3(0.0);
 
 void main(){
-	//per cluster variable
+	//width and height size in pixle of cluster
 	uint clusterSizeX=clusterSizes[3];
 
 	//get cluster 1D index

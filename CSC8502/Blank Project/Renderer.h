@@ -41,6 +41,15 @@ struct ClusterBasic
 	float sliceBiasFac;
 };
 
+struct Froxel
+{
+	Vector4 plane0;
+	Vector4 plane1;
+	Vector4 plane2;
+	Vector4 plane3;
+	Vector2 minMaxZ;
+};
+
 class Renderer : public OGLRenderer	{
 public:
 	enum ShadingType {
@@ -60,13 +69,14 @@ public:
 
 	 void SwitchShadingType(const ShadingType type) { m_shadingType = type; }
 	 void SetExposure(const float x) { m_exposure += x; }
+	 void SetShowSlice(const bool flag) { m_showSlices = flag; }
 	 int GetFPS() { return m_fps; }
 protected:
 	const unsigned int NUM_LIGHTS = 1000;
 	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 100.0f;
 	const int TILE_SIZE = 8;
-	const float LIGHT_BORDER_MIN[3]={ -1400.0f, 0.0f, -640.0f};
+	const float LIGHT_BORDER_MIN[3]={ -1400.0f, -100.0f, -640.0f};
 	const float LIGHT_BORDER_MAX[3]={ 1300.0f,1400.0f, 560.0f };
 	
 	int m_fps{0};
@@ -117,6 +127,7 @@ protected:
 	void GetComputeShaderLimit();
 
 	//cluster part
+	bool m_showSlices {false};
 	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 50;
 	const GLuint CLUSTER_SIZE_X = 16;
 	const GLuint CLUSTER_SIZE_Y = 9;
