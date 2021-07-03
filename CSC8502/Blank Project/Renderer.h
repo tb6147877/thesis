@@ -118,7 +118,7 @@ protected:
 	Shader* m_fp_depthDebugShader;
 	Shader* m_fp_lightDebugShader;
 	ComputeShader* m_lightCullingShader;
-	void DepthPrePass();
+	void DepthPrePass(const bool isCluster=false);
 	void LightCullingPass();
 	void CalculateLighting();
 	void DrawDepthDebug();
@@ -129,12 +129,15 @@ protected:
 	//cluster part
 	bool m_showSlices {false};
 	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 50;
+
+	//this cluster size must fit resolution of render target, eg. the render target is 16:9, so x is 16, y is 9
 	const GLuint CLUSTER_SIZE_X = 16;
 	const GLuint CLUSTER_SIZE_Y = 9;
 	const GLuint CLUSTER_SIZE_Z = 24;
 	float m_near=1.0f, m_far=3000.0f;
 	GLuint m_clusterNumber = CLUSTER_SIZE_X * CLUSTER_SIZE_Y * CLUSTER_SIZE_Z;
-	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, m_globalLightIndexCountSSBO, m_lightIndexListSSBO;
+	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, 
+				m_globalLightIndexCountSSBO, m_lightIndexListSSBO, m_activeClusterListAABB;
 	ComputeShader* m_c_generateClusterShader;
 	ComputeShader* m_c_lightCullingShader;
 	Shader* m_c_lightingShader;
@@ -143,4 +146,6 @@ protected:
 	void InitClusterRendering();
 	void ClusterLightCulling();
 	void ClusterCalculateLighting();
+
+	unsigned int m_frameIndex{ 0 };
 };

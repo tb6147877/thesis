@@ -38,9 +38,16 @@ layout (std430, binding = 6) buffer GlobalIndexCountSSBO{
     uint globalIndexCount;
 };
 
+layout (std430, binding = 7) buffer ActiveClusterListSSBO{
+    uint data[];
+} activeClusterList;
+
 shared PointLight sharedLights[16*9*4];
 
 uniform mat4 viewMatrix;
+uniform uint frameIndex;
+
+#define MAX_LIGHTS_PER_CLUSTER 50
 
 bool detectSphereAABB(uint light, uint cluster);
 float squaredDistancePointAndAABB(vec3 point, uint cluster);
@@ -50,12 +57,14 @@ void main(){
     uint lightCount  = lightBuffer.data.length();
 
     uint clusterIndex = gl_LocalInvocationIndex + gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z * gl_WorkGroupID.z;
+    
+    if(activeClusterList.data[clusterIndex]==frameIndex){
     uint visibleLightCount = 0;
-    uint visibleLightIndices[50];
+    uint visibleLightIndices[MAX_LIGHTS_PER_CLUSTER];
 
     for(int i=0;i<lightCount;i++){
         if(detectSphereAABB(i,clusterIndex)){
-                if(visibleLightCount>=50){break;}
+                if(visibleLightCount>=MAX_LIGHTS_PER_CLUSTER){break;}
                 visibleLightIndices[visibleLightCount]=i;
                 visibleLightCount+=1;
             }
@@ -73,7 +82,7 @@ void main(){
 
     lightGrids.data[clusterIndex].offset = offset;
     lightGrids.data[clusterIndex].count = visibleLightCount;
-    
+    }
 }
 
 bool detectSphereAABB(uint light, uint cluster){
