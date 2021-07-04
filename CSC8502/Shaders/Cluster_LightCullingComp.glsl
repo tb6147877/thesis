@@ -58,7 +58,8 @@ void main(){
 
     uint clusterIndex = gl_LocalInvocationIndex + gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z * gl_WorkGroupID.z;
     
-    if(activeClusterList.data[clusterIndex]==frameIndex){
+    if(activeClusterList.data[clusterIndex]!=frameIndex){return;}//fliter through active cluster list
+
     uint visibleLightCount = 0;
     uint visibleLightIndices[MAX_LIGHTS_PER_CLUSTER];
 
@@ -82,7 +83,7 @@ void main(){
 
     lightGrids.data[clusterIndex].offset = offset;
     lightGrids.data[clusterIndex].count = visibleLightCount;
-    }
+    
 }
 
 bool detectSphereAABB(uint light, uint cluster){

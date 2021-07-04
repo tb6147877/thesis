@@ -137,7 +137,7 @@ protected:
 	float m_near=1.0f, m_far=3000.0f;
 	GLuint m_clusterNumber = CLUSTER_SIZE_X * CLUSTER_SIZE_Y * CLUSTER_SIZE_Z;
 	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, 
-				m_globalLightIndexCountSSBO, m_lightIndexListSSBO, m_activeClusterListAABB;
+				m_globalLightIndexCountSSBO, m_lightIndexListSSBO, m_activeClusterListSSBO;
 	ComputeShader* m_c_generateClusterShader;
 	ComputeShader* m_c_lightCullingShader;
 	Shader* m_c_lightingShader;
@@ -147,5 +147,5 @@ protected:
 	void ClusterLightCulling();
 	void ClusterCalculateLighting();
 
-	unsigned int m_frameIndex{ 0 };
+	unsigned int m_frameIndex{ 1 };
 };
