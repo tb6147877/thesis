@@ -2,7 +2,7 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
-	m_shadingType = ShadingType::Cluster;
+	m_shadingType = ShadingType::ForwardPlus;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 0.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
@@ -14,21 +14,6 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_depthPreHelper =new DepthPreHelper{ width,height };
 	m_finalHelper=new FinalOutputHelper{ width,height };
 	m_frustum = new Frustum{};
-
-	//split screen with 16*16 tiles
-	m_workGroupsX = (width + (width % TILE_SIZE)) / TILE_SIZE;//judge if the exceeded pixels greater than half of 16, if it is, will get more tile
-	m_workGroupsY = (height + (height % TILE_SIZE)) / TILE_SIZE;
-	size_t numberOfTiles = m_workGroupsX * m_workGroupsY;
-
-	glGenBuffers(1, &m_lightsSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightsSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), 0, GL_DYNAMIC_DRAW);
-
-	glGenBuffers(1, &m_visibleLightIndicesSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_visibleLightIndicesSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, numberOfTiles * sizeof(VisibleIndex) * MAX_NUM_LIGHTS, 0, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	//m_modelShader = new Shader("ModelBasicVert.glsl", "ModelBasicFrag.glsl");
 	m_modelShader = new Shader("ForwardVert.glsl", "ForwardFrag.glsl");
@@ -62,6 +47,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 		return;
 	}
 
+	InitForwardPlusRendering();
 	GenerateLights();
 	InitClusterRendering();
 
@@ -429,6 +415,23 @@ void Renderer::DepthPrePass(const bool isCluster){
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_finalHelper->GetFBO());
 	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::InitForwardPlusRendering() {
+	//split screen with 16*16 tiles
+	m_workGroupsX = (width + (width % TILE_SIZE)) / TILE_SIZE;//judge if the exceeded pixels greater than half of 16, if it is, will get more tile
+	m_workGroupsY = (height + (height % TILE_SIZE)) / TILE_SIZE;
+	size_t numberOfTiles = m_workGroupsX * m_workGroupsY;
+
+	glGenBuffers(1, &m_lightsSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightsSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), 0, GL_DYNAMIC_DRAW);
+
+	glGenBuffers(1, &m_visibleLightIndicesSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_visibleLightIndicesSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, numberOfTiles * sizeof(VisibleIndex) * MAX_LIGHT_NUMBER_PER_CLUSTER, 0, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void Renderer::LightCullingPass() {

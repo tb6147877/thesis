@@ -19,6 +19,7 @@ layout(std430, binding = 1) writeonly buffer VisibleLightIndicesBuffer {
 } visibleLightIndicesBuffer;
 
 #define MAX_NR_LIGHT 2048
+#define MAX_NR_LIGHT_PER_TILE 50
 
 //uniform
 uniform sampler2D depthTex;
@@ -36,7 +37,7 @@ shared uint minDepthInt;
 shared uint maxDepthInt;
 shared uint visibleLightCount;
 shared vec4 frustumPlanes[6];
-shared int visibleLightIndices[MAX_NR_LIGHT];
+shared int visibleLightIndices[MAX_NR_LIGHT_PER_TILE];
 shared mat4 viewProjection;
 
 #define TILE_SIZE 8
@@ -147,7 +148,7 @@ void main(){
 			}
 		}
 
-		if (distance > 0.0) {
+		if (distance > 0.0 && visibleLightCount<=MAX_NR_LIGHT_PER_TILE) {
 			uint offset = atomicAdd(visibleLightCount, 1);
 			visibleLightIndices[offset] = int(lightIndex);
 		}
@@ -156,12 +157,12 @@ void main(){
 	barrier();
 
 	if (gl_LocalInvocationIndex == 0) {
-		uint offset = index * MAX_NR_LIGHT; 
+		uint offset = index * MAX_NR_LIGHT_PER_TILE; 
 		for (uint i = 0; i < visibleLightCount; i++) {
 			visibleLightIndicesBuffer.data[offset + i].index = visibleLightIndices[i];
 		}
 
-		if (visibleLightCount != MAX_NR_LIGHT) {
+		if (visibleLightCount != MAX_NR_LIGHT_PER_TILE) {
 			visibleLightIndicesBuffer.data[offset + visibleLightCount].index = -1;
 		}
 	}

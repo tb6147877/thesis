@@ -33,6 +33,7 @@ layout(std430, binding = 1) readonly buffer VisibleLightIndicesBuffer {
 
 #define NR_POINT_LIGHT 1000
 #define MAX_NR_LIGHT 2048
+#define MAX_NR_LIGHT_PER_TILE 50
 #define TILE_SIZE 8
 
 // uniform sampler2D depthTex;
@@ -55,8 +56,8 @@ void main(){
 	ivec2 tileID = location / ivec2(TILE_SIZE, TILE_SIZE);
 	uint index = tileID.y * numberOfTilesX + tileID.x;
 
-	uint offset = index * MAX_NR_LIGHT;
-	for (uint i = 0; i < NR_POINT_LIGHT && visibleLightIndicesBuffer.data[offset + i].index != -1; i++) {
+	uint offset = index * MAX_NR_LIGHT_PER_TILE;
+	for (uint i = 0; i < MAX_NR_LIGHT_PER_TILE && visibleLightIndicesBuffer.data[offset + i].index != -1; i++) {
 		uint lightIndex = visibleLightIndicesBuffer.data[offset + i].index;
 		PointLight light = lightBuffer.data[lightIndex];
 

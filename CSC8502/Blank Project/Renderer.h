@@ -75,6 +75,7 @@ protected:
 	const unsigned int NUM_LIGHTS = 1000;
 	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 100.0f;
+	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 50;
 	const int TILE_SIZE = 8;
 	const float LIGHT_BORDER_MIN[3]={ -1400.0f, -100.0f, -640.0f};
 	const float LIGHT_BORDER_MAX[3]={ 1300.0f,1400.0f, 560.0f };
@@ -97,6 +98,7 @@ protected:
 	void UpdateLights(const float dt);
 	Vector3 RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen);
 	int CalculateFPS(const float dt);
+	void DepthPrePass(const bool isCluster = false);
 
 	//Forward Shading part
 	Shader* m_modelShader;
@@ -118,7 +120,7 @@ protected:
 	Shader* m_fp_depthDebugShader;
 	Shader* m_fp_lightDebugShader;
 	ComputeShader* m_lightCullingShader;
-	void DepthPrePass(const bool isCluster=false);
+	void InitForwardPlusRendering();
 	void LightCullingPass();
 	void CalculateLighting();
 	void DrawDepthDebug();
@@ -128,9 +130,11 @@ protected:
 
 	//cluster part
 	bool m_showSlices {false};
-	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 50;
+	unsigned int m_frameIndex{ 1 };
+	
 
 	//this cluster size must fit resolution of render target, eg. the render target is 16:9, so x is 16, y is 9
+	//1280:720 fit this resolution
 	const GLuint CLUSTER_SIZE_X = 16;
 	const GLuint CLUSTER_SIZE_Y = 9;
 	const GLuint CLUSTER_SIZE_Z = 24;
@@ -147,5 +151,5 @@ protected:
 	void ClusterLightCulling();
 	void ClusterCalculateLighting();
 
-	unsigned int m_frameIndex{ 1 };
+	
 };
