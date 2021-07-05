@@ -74,11 +74,13 @@ public:
 protected:
 	const unsigned int NUM_LIGHTS = 1000;
 	const int MAX_NUM_LIGHTS = 2048;
-	const float LIGHT_RADIUS = 100.0f;
-	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 50;
+	const float LIGHT_RADIUS = 120.0f;
+	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 100;
 	const int TILE_SIZE = 8;
 	const float LIGHT_BORDER_MIN[3]={ -1400.0f, -100.0f, -640.0f};
 	const float LIGHT_BORDER_MAX[3]={ 1300.0f,1400.0f, 560.0f };
+	/*const float LIGHT_BORDER_MIN[3]={ -140.0f, -10.0f, -64.0f};
+	const float LIGHT_BORDER_MAX[3]={ 130.0f,140.0f, 56.0f };*/
 	
 	int m_fps{0};
 	ShadingType m_shadingType;
