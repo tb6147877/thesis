@@ -41,15 +41,6 @@ struct ClusterBasic
 	float sliceBiasFac;
 };
 
-struct Froxel
-{
-	Vector4 plane0;
-	Vector4 plane1;
-	Vector4 plane2;
-	Vector4 plane3;
-	Vector2 minMaxZ;
-};
-
 class Renderer : public OGLRenderer	{
 public:
 	enum ShadingType {

@@ -2,9 +2,9 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	//GetComputeShaderLimit();
-	m_shadingType = ShadingType::Cluster;
+	m_shadingType = ShadingType::ForwardPlus;
 	m_exposure = 1.0f;
-	m_camera = new Camera(0.0f, 90.0f, Vector3{ 0.0f,100.0f,0.0f });
+	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
 
 	m_model = new Assimp_Model("sponza.obj");
@@ -113,22 +113,22 @@ int Renderer::CalculateFPS(const float dt) {
 	{
 		fps = frameCount;
 		frameCount = 0;
-		lastTime = 0.0f;
+		lastTime -= 1.0f;
 	}
 	return fps;
-
+	
 }
 
 void Renderer::GenerateLights() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(0, 1);
-
+	std::uniform_real_distribution<> disColor(0, 8);
 	//point lights
 	for (int i = 0; i < NUM_LIGHTS; i++)
 	{
 		//colorful lights
-		m_lights.push_back(new Light{ Light::LightType::Point, RandomLightPosition(dis,gen),LIGHT_RADIUS,Vector3{1.0f+(float)dis(gen),1.0f + (float)dis(gen),1.0f + (float)dis(gen)} });
+		m_lights.push_back(new Light{ Light::LightType::Point, RandomLightPosition(dis,gen),LIGHT_RADIUS,Vector3{1.0f+(float)disColor(gen),1.0f + (float)disColor(gen),1.0f + (float)disColor(gen)} });
 		
 		//white lights
 		//m_lights.push_back(new Light{ Light::LightType::Point, RandomLightPosition(dis,gen),LIGHT_RADIUS,Vector3{1.0f ,1.0f,1.0f} });
