@@ -40,6 +40,7 @@
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="Frustum.cpp" />
+    <ClCompile Include="FileOperator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -91,6 +92,7 @@
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Frustum.h" />
+    <ClInclude Include="FileOperator.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GLAD">

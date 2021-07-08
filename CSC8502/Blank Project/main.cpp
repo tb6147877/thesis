@@ -50,7 +50,7 @@ int main()	{
 		renderer.RenderScene();
 		renderer.SwapBuffers();
 		//std::cout << renderer.GetFPS() << std::endl;
-		w.SetTitle("FPS:"+std::to_string(renderer.GetFPS()));
+		w.SetTitle(renderer.GetShadingTypeStr()+" FPS:"+std::to_string(renderer.GetFPS()));
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_F5)) {
 			Shader::ReloadAllShaders();
 		}

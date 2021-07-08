@@ -2,7 +2,7 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	//GetComputeShaderLimit();
-	m_shadingType = ShadingType::ForwardPlus;
+	m_shadingType = ShadingType::Cluster;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
@@ -117,6 +117,32 @@ int Renderer::CalculateFPS(const float dt) {
 	}
 	return fps;
 	
+}
+
+void Renderer::RecordPerformaceData() {
+
+
+}
+
+
+std::string Renderer::GetShadingTypeStr() {
+	switch (m_shadingType)
+	{
+	case Renderer::Forward:
+		return "Forward";
+	case Renderer::Deferred:
+		return "Deferred";
+	case Renderer::ForwardPlus:
+		return "Forward+";
+	case Renderer::Cluster:
+		return "Cluster";
+	case Renderer::ForwardPlus_Debug_Depth:
+		return "Depth Debug";
+	case Renderer::ForwardPlus_Debug_Lights:
+		return "Tiled Debug";
+	default:
+		return "";
+	}
 }
 
 void Renderer::GenerateLights() {

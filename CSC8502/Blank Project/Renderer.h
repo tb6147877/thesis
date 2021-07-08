@@ -10,6 +10,7 @@
 #include "../nclgl/Sphere.h"
 #include "../nclgl/ComputeShader.h"
 #include "../nclgl/Frustum.h"
+#include "../nclgl/FileOperator.h"
 #include "DeferredRenderingHelper.h"
 #include "DepthPreHelper.h"
 #include "FinalOutputHelper.h"
@@ -62,6 +63,8 @@ public:
 	 void SetExposure(const float x) { m_exposure += x; }
 	 void SetShowSlice(const bool flag) { m_showSlices = flag; }
 	 int GetFPS() { return m_fps; }
+	 std::string GetShadingTypeStr();
+
 protected:
 	const unsigned int NUM_LIGHTS = 1000;
 	const int MAX_NUM_LIGHTS = 2048;
@@ -92,6 +95,8 @@ protected:
 	Vector3 RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen);
 	int CalculateFPS(const float dt);
 	void DepthPrePass(const bool isCluster = false);
+	void RecordPerformaceData();
+	
 
 	//Forward Shading part
 	Shader* m_modelShader;
