@@ -89,6 +89,7 @@ protected:
 	Shader* m_finalShader;
 	Frustum* m_frustum;
 	float m_exposure;
+	std::vector<int> m_performanceData;
 
 	void GenerateLights();
 	void UpdateLights(const float dt);

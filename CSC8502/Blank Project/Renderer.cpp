@@ -59,6 +59,8 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 }
 
 Renderer::~Renderer(void)	{
+	RecordPerformaceData();
+
 	delete m_camera;
 	delete m_model;
 	delete m_modelShader;
@@ -112,6 +114,10 @@ int Renderer::CalculateFPS(const float dt) {
 	if (lastTime>=1.0f)
 	{
 		fps = frameCount;
+		if (fps > 2)
+		{
+			m_performanceData.push_back(fps);
+		}
 		frameCount = 0;
 		lastTime -= 1.0f;
 	}
@@ -120,8 +126,12 @@ int Renderer::CalculateFPS(const float dt) {
 }
 
 void Renderer::RecordPerformaceData() {
-
-
+	std::string temp{""};
+	for (size_t i = 0; i < m_performanceData.size(); i++)
+	{
+		temp += (std::to_string(m_performanceData[i]) + ",\n");
+	}
+	FileOperator::writeFile(temp, "C:/Users/tb614/Desktop/cluster.csv");
 }
 
 
