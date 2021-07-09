@@ -2,10 +2,12 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	//GetComputeShaderLimit();
-	m_shadingType = ShadingType::ForwardPlus;
+	m_shadingType = ShadingType::Cluster;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
+
+	//float zsliceNum = (std::log(m_far / m_near)/ std::log(1+2*std::tan(45.0f)/18.0f));  //todo, calculate how many slices in z axis
 
 	m_model = new Assimp_Model("sponza.obj");
 	m_quad = new Quad();
@@ -32,6 +34,8 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_c_generateClusterShader = new ComputeShader("Cluster_GenerateClusterComp.glsl");
 	m_c_lightingShader = new Shader("Cluster_LightingVert.glsl","Cluster_LightingFrag.glsl");
 	m_c_lightCullingShader = new ComputeShader("Cluster_LightCullingComp.glsl");
+	m_c_selectActiveShader = new Shader("Cluster_MarkActiveClusterVert.glsl", "Cluster_MarkActiveClusterFrag.glsl");
+	m_c_buildDenseClustersListShader= new ComputeShader("Cluster_BuildDenseClustersComp.glsl");
 
 	//modelMatrix = Matrix4::Scale(Vector3{ 0.1f,0.1f,0.1f });
 
@@ -85,6 +89,9 @@ Renderer::~Renderer(void)	{
 	delete m_c_generateClusterShader;
 	delete m_c_lightingShader;
 	delete m_c_lightCullingShader;
+	delete m_c_selectActiveShader;
+	delete m_selectActiveClusterHelper;
+	delete m_c_buildDenseClustersListShader;
 
 	for (int i = 0; i < m_lights.size(); i++)
 	{
@@ -249,7 +256,8 @@ void Renderer::RenderScene()	{
 		break;
 	case Renderer::Cluster:
 		//3.Cluster Forward Rendering
-		DepthPrePass(true);
+		DepthPrePass();
+		//SelectActiveClusters();
 		ClusterLightCulling();
 		ClusterCalculateLighting();
 		break;
@@ -414,7 +422,7 @@ void Renderer::CombineBuffer() {
 }
 
 
-void Renderer::DepthPrePass(const bool isCluster){
+void Renderer::DepthPrePass(){
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
 
@@ -423,31 +431,8 @@ void Renderer::DepthPrePass(const bool isCluster){
 	BindShader(m_depthPreShader);
 	UpdateShaderMatrices();
 
-	//if (isCluster)
-	//{
-	//	if (m_frameIndex==0)//when the frame index return to the 0, reset the whole m_activeClusterListSSBO
-	//	{
-	//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClusterListSSBO);
-	//		int* temp = (int*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-	//		memset(temp, 0, m_clusterNumber);
-	//		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-	//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//		m_frameIndex++;//finally, reset m_frameIndex to 1
-	//	}
-	//}
-
-	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
-	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClusterListSSBO);
-
-	//glUniform1ui(glGetUniformLocation(m_depthPreShader->GetProgram(), "frameIndex"), m_frameIndex);
-	//glUniform1f(glGetUniformLocation(m_depthPreShader->GetProgram(), "zNear"), m_near);
-	//glUniform1f(glGetUniformLocation(m_depthPreShader->GetProgram(), "zFar"), m_far);
-	//glUniform1i(glGetUniformLocation(m_depthPreShader->GetProgram(), "isCluster"), isCluster);
-
 	m_model->Draw(m_depthPreShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);*/
 
 	//try to use depth pre pass to decrease over draw
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_depthPreHelper->GetFBO());
@@ -559,6 +544,8 @@ void Renderer::DrawLightDebug() {
 }
 
 void Renderer::InitClusterRendering() {
+	m_selectActiveClusterHelper = new SelectActiveClusterHelper();
+
 	GLuint sizeX = (GLuint)std::ceilf(width / (float)CLUSTER_SIZE_X);
 
 	//init AABB space of clusters
@@ -602,6 +589,19 @@ void Renderer::InitClusterRendering() {
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClusterListSSBO);
 	//glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber  * sizeof(unsigned int), NULL, GL_STATIC_COPY);
 
+	/*m_activeClustersCount = 0;
+	glGenBuffers(1, &m_activeClustersCountSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), &m_activeClustersCount, GL_DYNAMIC_READ);
+
+	glGenBuffers(1, &m_activeClustersSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber* sizeof(unsigned int), NULL, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &m_denseActiveClustersSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_denseActiveClustersSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * sizeof(unsigned int), NULL, GL_STATIC_DRAW);*/
+
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	//calculate AABB of cluster only once
@@ -612,6 +612,47 @@ void Renderer::InitClusterRendering() {
 	glUniform1f(glGetUniformLocation(m_c_generateClusterShader->GetProgram(), "zFar"), m_far);
 	m_c_generateClusterShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
 	
+}
+
+void Renderer::SelectActiveClusters() {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_depthPreHelper -> GetFBO());
+
+	BindShader(m_c_selectActiveShader);
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClustersSSBO);
+	glUniform2f(glGetUniformLocation(m_c_selectActiveShader->GetProgram(), "pixelSize"), 1.0f / (float)width, 1.0f / (float)height);
+	glUniform1f(glGetUniformLocation(m_c_selectActiveShader->GetProgram(), "zNear"), m_near);
+	glUniform1f(glGetUniformLocation(m_c_selectActiveShader->GetProgram(), "zFar"), m_far);
+	glUniform1i(glGetUniformLocation(m_c_selectActiveShader->GetProgram(), "depthTex"), 5);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, m_depthPreHelper->GetDepthTex());
+
+	m_quad->Draw();
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+	m_c_buildDenseClustersListShader->Bind();
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_denseActiveClustersSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_activeClustersCountSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClustersSSBO);
+
+	m_c_buildDenseClustersListShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
+	unsigned int* temp1 = (unsigned int*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+	m_activeClustersCount = temp1[0];
+	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void Renderer::ClusterLightCulling(){
@@ -626,7 +667,16 @@ void Renderer::ClusterLightCulling(){
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_globalLightIndexCountSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClusterListSSBO);*/
 	//m_c_lightCullingShader->Dispatch(1, 1, 6);
+	// 
 	m_c_lightCullingShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
+
+
+
+	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_denseActiveClustersSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_activeClustersCountSSBO);
+	m_c_lightCullingShader->Dispatch(m_activeClustersCount,1,1);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, 0);*/
 }
 
 

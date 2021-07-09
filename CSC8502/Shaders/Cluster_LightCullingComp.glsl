@@ -31,6 +31,14 @@ layout (std430, binding = 4) writeonly buffer LightIndexSSBO{
     uint data[];
 } lightIndexList;
 
+layout (std430, binding = 5) buffer DenseActiveClustersSSBO{
+    uint data[];
+} denseActiveClusters;
+
+layout (std430, binding = 6) buffer ActiveClustersCountSSBO{
+    uint activeClustersCount;
+};
+
 // layout (std430, binding = 5) buffer LightGridSSBO{
 //     LightGrid data[];
 // } lightGrids;
@@ -67,7 +75,11 @@ void main(){
 					  gl_WorkGroupID.y*gl_NumWorkGroups.x+
 					  gl_WorkGroupID.z*gl_NumWorkGroups.x*gl_NumWorkGroups.y;
 
-    //if(activeClusterList.data[clusterIndex]!=frameIndex){return;}//fliter through active cluster list
+    // activeClustersCount=0;
+    // uint index=gl_WorkGroupID.x +
+	// 				  gl_WorkGroupID.y*gl_NumWorkGroups.x+
+	// 				  gl_WorkGroupID.z*gl_NumWorkGroups.x*gl_NumWorkGroups.y;
+    // uint clusterIndex=denseActiveClusters.data[index];
 
     
 

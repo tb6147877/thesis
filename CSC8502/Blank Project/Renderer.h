@@ -14,6 +14,7 @@
 #include "DeferredRenderingHelper.h"
 #include "DepthPreHelper.h"
 #include "FinalOutputHelper.h"
+#include "SelectActiveClusterHelper.h"
 
 struct PointLight
 {
@@ -95,7 +96,7 @@ protected:
 	void UpdateLights(const float dt);
 	Vector3 RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen);
 	int CalculateFPS(const float dt);
-	void DepthPrePass(const bool isCluster = false);
+	void DepthPrePass();
 	void RecordPerformaceData();
 	
 
@@ -137,16 +138,24 @@ protected:
 	const GLuint CLUSTER_SIZE_X = 16;
 	const GLuint CLUSTER_SIZE_Y = 9;
 	const GLuint CLUSTER_SIZE_Z = 24;
+	/*const GLuint CLUSTER_SIZE_X =48;
+	const GLuint CLUSTER_SIZE_Y = 27;
+	const GLuint CLUSTER_SIZE_Z = 72;*/
 	float m_near=1.0f, m_far=3000.0f;
 	GLuint m_clusterNumber = CLUSTER_SIZE_X * CLUSTER_SIZE_Y * CLUSTER_SIZE_Z;
 	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, 
 				m_globalLightIndexCountSSBO, m_lightIndexListSSBO, m_activeClusterListSSBO;
+	GLuint m_activeClustersCountSSBO,m_activeClustersSSBO,m_denseActiveClustersSSBO;
 	ComputeShader* m_c_generateClusterShader;
 	ComputeShader* m_c_lightCullingShader;
-	Shader* m_c_lightingShader;
+	Shader* m_c_lightingShader, *m_c_selectActiveShader;
 	ClusterBasic m_clusterBaisc;
+	SelectActiveClusterHelper* m_selectActiveClusterHelper;
+	ComputeShader* m_c_buildDenseClustersListShader;
+	unsigned int m_activeClustersCount;
 
 	void InitClusterRendering();
+	void SelectActiveClusters();
 	void ClusterLightCulling();
 	void ClusterCalculateLighting();
 
