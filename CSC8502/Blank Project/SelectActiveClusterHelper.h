@@ -5,13 +5,14 @@
 class SelectActiveClusterHelper
 {
 public:
-	SelectActiveClusterHelper();
+	SelectActiveClusterHelper(const int width, const int height);
 	~SelectActiveClusterHelper();
 
 	GLuint GetFBO() { return m_FBO; }
+	GLuint GetTex() { return m_clusterIndexTex;}
 
 private:
-	GLuint m_FBO;
+	GLuint m_FBO, m_clusterIndexTex;
 
 };
 

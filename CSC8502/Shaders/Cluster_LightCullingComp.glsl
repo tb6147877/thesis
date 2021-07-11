@@ -2,17 +2,17 @@
 
 //layout(local_size_x = 18, local_size_y = 12, local_size_z = 6) in;
 //layout(local_size_x = 16, local_size_y = 9, local_size_z = 4) in;
-layout(local_size_x = 10, local_size_y = 10, local_size_z = 10) in;
+layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 struct PointLight {
 	vec4 color;
 	vec4 position_radius;
 };
 
-// struct LightGrid{
-//     uint offset;
-//     uint count;
-// };
+struct LightGrid{
+    uint offset;
+    uint count;
+};
 
 struct ClusterAABBVolume{
     vec4 minPoint;
@@ -31,13 +31,6 @@ layout (std430, binding = 4) writeonly buffer LightIndexSSBO{
     uint data[];
 } lightIndexList;
 
-layout (std430, binding = 5) buffer DenseActiveClustersSSBO{
-    uint data[];
-} denseActiveClusters;
-
-layout (std430, binding = 6) buffer ActiveClustersCountSSBO{
-    uint activeClustersCount;
-};
 
 // layout (std430, binding = 5) buffer LightGridSSBO{
 //     LightGrid data[];
@@ -47,9 +40,13 @@ layout (std430, binding = 6) buffer ActiveClustersCountSSBO{
 //     uint globalIndexCount;
 // };
 
-// layout (std430, binding = 7) readonly buffer ActiveClusterListSSBO{
+// layout (std430, binding = 8) buffer DenseActiveClustersSSBO{
 //     uint data[];
-// } activeClusterList;
+// } denseActiveClusters;
+
+// layout (std430, binding = 9) buffer ActiveClustersCountSSBO{
+//     uint activeClustersCount;
+// };
 
 uniform mat4 viewMatrix;
 uniform uint frameIndex;
@@ -63,6 +60,58 @@ float squaredDistancePointAndAABB(vec3 point, uint cluster);
 
 shared uint visibleLightCount;
 shared uint visibleLightIndices[MAX_LIGHTS_PER_CLUSTER];
+
+// void main(){
+//     if (gl_LocalInvocationIndex == 0){
+//         visibleLightCount=0;
+//     }
+//     barrier();
+
+//     // uint clusterIndex=gl_WorkGroupID.x +
+// 	// 				  gl_WorkGroupID.y*gl_NumWorkGroups.x+
+// 	// 				  gl_WorkGroupID.z*gl_NumWorkGroups.x*gl_NumWorkGroups.y;
+
+//     activeClustersCount=0;
+//     uint index=gl_WorkGroupID.x +
+// 					  gl_WorkGroupID.y*gl_NumWorkGroups.x+
+// 					  gl_WorkGroupID.z*gl_NumWorkGroups.x*gl_NumWorkGroups.y;
+//     uint clusterIndex=denseActiveClusters.data[index];
+
+    
+
+//     uint lightCount  = lightBuffer.data.length();
+//     uint threadCount = gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z;
+// 	uint passCount = (lightCount + threadCount - 1) / threadCount;
+
+//     for (uint i = 0; i < passCount; i++) {
+//         uint lightIndex = i * threadCount + gl_LocalInvocationIndex;
+// 		if (lightIndex >= lightCount) {
+// 			break;
+// 		}
+
+//         if(detectSphereAABB(lightIndex,clusterIndex)){
+//             if(visibleLightCount >= MAX_LIGHTS_PER_CLUSTER){ break; }
+//             uint offset = atomicAdd(visibleLightCount, 1);//this function return old value
+// 			visibleLightIndices[offset] = lightIndex;
+//         }
+//     }
+    
+//     barrier();
+
+//     if (gl_LocalInvocationIndex == 0) {
+//         uint offset = atomicAdd(globalIndexCount, visibleLightCount);
+        
+//         for(uint i = 0; i < visibleLightCount; ++i){
+//             lightIndexList.data[offset + i] = visibleLightIndices[i];
+//         }
+
+//         visibleLightCount=min(visibleLightCount,MAX_LIGHTS_PER_CLUSTER-1);
+        
+//         lightGrids.data[clusterIndex].offset=offset;
+//         lightGrids.data[clusterIndex].count=visibleLightCount;
+//     }
+    
+// }
 
 
 void main(){

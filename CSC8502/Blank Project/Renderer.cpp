@@ -544,7 +544,7 @@ void Renderer::DrawLightDebug() {
 }
 
 void Renderer::InitClusterRendering() {
-	m_selectActiveClusterHelper = new SelectActiveClusterHelper();
+	m_selectActiveClusterHelper = new SelectActiveClusterHelper(width,height);
 
 	GLuint sizeX = (GLuint)std::ceilf(width / (float)CLUSTER_SIZE_X);
 
@@ -584,23 +584,18 @@ void Renderer::InitClusterRendering() {
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_globalLightIndexCountSSBO);
 	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), NULL, GL_STATIC_COPY);
 
-	////init active cluster list
-	//glGenBuffers(1, &m_activeClusterListSSBO);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClusterListSSBO);
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber  * sizeof(unsigned int), NULL, GL_STATIC_COPY);
+	//m_activeClustersCount = 0;
+	//glGenBuffers(1, &m_activeClustersCountSSBO);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), &m_activeClustersCount, GL_DYNAMIC_READ);
 
-	/*m_activeClustersCount = 0;
-	glGenBuffers(1, &m_activeClustersCountSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), &m_activeClustersCount, GL_DYNAMIC_READ);
+	//glGenBuffers(1, &m_activeClustersSSBO);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersSSBO);
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber* sizeof(unsigned int), NULL, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &m_activeClustersSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber* sizeof(unsigned int), NULL, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &m_denseActiveClustersSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_denseActiveClustersSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * sizeof(unsigned int), NULL, GL_STATIC_DRAW);*/
+	//glGenBuffers(1, &m_denseActiveClustersSSBO);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_denseActiveClustersSSBO);
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * sizeof(unsigned int), NULL, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -615,7 +610,7 @@ void Renderer::InitClusterRendering() {
 }
 
 void Renderer::SelectActiveClusters() {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_depthPreHelper -> GetFBO());
+	glBindFramebuffer(GL_FRAMEBUFFER, m_selectActiveClusterHelper -> GetFBO());
 
 	BindShader(m_c_selectActiveShader);
 
@@ -638,15 +633,16 @@ void Renderer::SelectActiveClusters() {
 
 
 	m_c_buildDenseClustersListShader->Bind();
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_denseActiveClustersSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_activeClustersCountSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClustersSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, m_denseActiveClustersSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, m_activeClustersCountSSBO);
 
 	m_c_buildDenseClustersListShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
 
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);
+
+	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, 0);*/
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
 	unsigned int* temp1 = (unsigned int*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
@@ -656,6 +652,7 @@ void Renderer::SelectActiveClusters() {
 }
 
 void Renderer::ClusterLightCulling(){
+
 	m_c_lightCullingShader->Bind();
 	glUniform1ui(glGetUniformLocation(m_c_lightCullingShader->GetProgram(), "frameIndex"), m_frameIndex++);
 	glUniformMatrix4fv(glGetUniformLocation(m_c_lightCullingShader->GetProgram(), "viewMatrix"), 1, false, viewMatrix.values);
@@ -664,19 +661,17 @@ void Renderer::ClusterLightCulling(){
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_lightsSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_lightIndexListSSBO);
 	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_lightGridsSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_globalLightIndexCountSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClusterListSSBO);*/
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_globalLightIndexCountSSBO);*/
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClusterListSSBO);
 	//m_c_lightCullingShader->Dispatch(1, 1, 6);
 	// 
 	m_c_lightCullingShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
 
 
-
-	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_denseActiveClustersSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_activeClustersCountSSBO);
-	m_c_lightCullingShader->Dispatch(m_activeClustersCount,1,1);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, 0);*/
+	//std::cout << m_activeClustersCount << "\n";
+	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, m_denseActiveClustersSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, m_activeClustersCountSSBO);
+	m_c_lightCullingShader->Dispatch(m_activeClustersCount,1,1);*/
 }
 
 
@@ -687,6 +682,11 @@ void Renderer::ClusterCalculateLighting() {
 	glDepthMask(GL_FALSE);
 	BindShader(m_c_lightingShader);
 	UpdateShaderMatrices();
+
+	/*glUniform1i(glGetUniformLocation(m_c_lightingShader->GetProgram(), "clusterIndexTex"), 6);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, m_selectActiveClusterHelper->GetTex());
+	glUniform2f(glGetUniformLocation(m_c_lightingShader->GetProgram(), "pixelSize"), 1.0f / (float)width, 1.0f / (float)height);*/
 
 	glUniform3fv(glGetUniformLocation(m_c_lightingShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
 	glUniform1f(glGetUniformLocation(m_c_lightingShader->GetProgram(), "zNear"), m_near);
@@ -701,7 +701,9 @@ void Renderer::ClusterCalculateLighting() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
 	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);*/
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, 0);*/
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(m_finalShader);
