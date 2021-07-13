@@ -52,7 +52,7 @@ layout (std430, binding = 6) writeonly buffer GlobalIndexCountSSBO{
 #define MAX_LIGHTS_PER_CLUSTER 30
 uniform float zFar;
 uniform float zNear;
-uniform bool showSlice;
+uniform int showSlice;
 
 float linearDepth(float depth);
 vec3 calculatePointLight(PointLight light,vec3 viewDir,vec3 normal,vec3 fragPos);
@@ -87,10 +87,12 @@ void main(){
         result+=calculatePointLight(light, viewDir, normal, IN.fragPos);
     }
 
-    if(showSlice){
+    if(showSlice==1){
         FragColor = vec4(sliceColors[uint(mod(float(slice), 8.0))], 1.0);
-    }else{
+    }else if(showSlice==0){
         FragColor=vec4(result,1.0);
+    }else{
+        FragColor=vec4(float(lightCount)/MAX_LIGHTS_PER_CLUSTER);
     }
     
 }

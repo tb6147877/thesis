@@ -62,12 +62,12 @@ public:
 
 	 void SwitchShadingType(const ShadingType type) { m_shadingType = type; }
 	 void SetExposure(const float x) { m_exposure += x; }
-	 void SetShowSlice(const bool flag) { m_showSlices = flag; }
+	 void SetShowSlice(const int flag) { m_showSlices = flag; }
 	 int GetFPS() { return m_fps; }
 	 std::string GetShadingTypeStr();
 
 protected:
-	const unsigned int NUM_LIGHTS = 40;
+	const unsigned int NUM_LIGHTS = 1000;
 	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 120.0f;
 	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 100;
@@ -129,7 +129,7 @@ protected:
 	void GetComputeShaderLimit();
 
 	//cluster part
-	bool m_showSlices {false};
+	int m_showSlices {0};
 	unsigned int m_frameIndex{ 1 };
 	
 
