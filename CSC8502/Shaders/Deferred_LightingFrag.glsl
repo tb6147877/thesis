@@ -13,17 +13,9 @@ uniform vec2 pixelSize;
 uniform vec3 viewPos;
 
 uniform PointLight pointLight;
-//PointLight pointLight;
 
 uniform mat4 inverseProjView;
 
-/*
-in Vertex {
-	vec3 color;
-    vec3 position;
-    float radius;
-} IN ;
-*/
 
 layout (location = 0) out vec4 diffuseOutput;
 layout (location = 1) out vec4 specularOutput;
@@ -37,12 +29,6 @@ void main(){
  	
  	vec3 normal = normalize(texture(normTex, texCoord.xy).xyz * 2.0 - 1.0);
 	vec3 viewDir = normalize(viewPos - worldPos);
-
-/*
-	pointLight.color=IN.color;
-	pointLight.position=IN.position;
-	pointLight.radius=IN.radius;
-*/
 
 	float dis=length(pointLight.position - worldPos);
 	float atten=1.0-clamp(dis/pointLight.radius, 0.0, 1.0);

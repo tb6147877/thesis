@@ -15,5 +15,4 @@ void main() {
 	const float gamma = 2.2;
 	result = pow(result, vec3(1.0 / gamma));
 	fragColor = vec4(result, 1.0);
-	//fragColor = texture(diffTex, Texcoord);
 }

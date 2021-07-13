@@ -5,14 +5,14 @@ struct PointLight {
 	vec4 position_radius;
 };
 
-struct VisibleIndex {
-	int index;
-};
-
 //ssbo
 layout(std430, binding = 0) readonly buffer LightBuffer {
 	PointLight data[];
 } lightBuffer;
+
+struct VisibleIndex {
+	int index;
+};
 
 layout(std430, binding = 1) writeonly buffer VisibleLightIndicesBuffer {
 	VisibleIndex data[];

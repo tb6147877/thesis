@@ -13,7 +13,7 @@ int main()	{
 		return -1;
 	}
 
-	while(w.UpdateWindow()  && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)&&w.GetTimer()->GetTotalTimeSeconds()<=300){
+	while(w.UpdateWindow()  && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)&&w.GetTimer()->GetTotalTimeSeconds()<=190){
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_0)) {
 			renderer.SwitchShadingType(Renderer::ShadingType::Forward);
 		}

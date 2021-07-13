@@ -1,6 +1,6 @@
 #version 430 core
 
-layout (std430, binding = 2) buffer ClusterBasicData{
+layout (std430, binding = 2) readonly buffer ClusterBasicData{
 	mat4 inverseProj;
     uvec4 clusterSizes;
     uvec2 screenSizes;
@@ -8,14 +8,13 @@ layout (std430, binding = 2) buffer ClusterBasicData{
     float bias;
 };
 
-layout (std430, binding = 7) buffer ActiveClustersSSBO{
+layout (std430, binding = 7) writeonly buffer ActiveClustersSSBO{
     uint data[];
 } activeClusters;
 
 in vec2 Texcoord;
 
 uniform sampler2D depthTex;
-uniform vec2 pixelSize;
 uniform float zFar;
 uniform float zNear;
 
@@ -23,7 +22,6 @@ float linearDepth(float depth);
 out vec4 fragColour;
 
 void main(){
-    //vec2 texCoord = vec2(gl_FragCoord.xy * pixelSize);
  	float depth = texture(depthTex,Texcoord).r;
 
     uint slice = uint(max(log2(linearDepth(depth)) * scale + bias, 0.0));

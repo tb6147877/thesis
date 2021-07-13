@@ -20,10 +20,10 @@ struct PointLight{
     vec4 position_radius;
 };
 
-// struct LightGrid{
-//     uint offset;
-//     uint count;
-// };
+struct LightGrid{
+    uint offset;
+    uint count;
+};
 
 layout (std430, binding = 2) readonly buffer ClusterBasicData{
 	mat4 inverseProj;
@@ -41,15 +41,15 @@ layout (std430, binding = 4) readonly buffer LightIndexSSBO{
     uint data[];
 } lightIndexList;
 
-// layout (std430, binding = 5) readonly buffer LightGridSSBO{
-//     LightGrid data[];
-// } lightGrids;
+layout (std430, binding = 5) readonly buffer LightGridSSBO{
+    LightGrid data[];
+} lightGrids;
 
-// layout (std430, binding = 6) buffer GlobalIndexCountSSBO{
-//     uint globalIndexCount;
-// };
+layout (std430, binding = 6) writeonly buffer GlobalIndexCountSSBO{
+    uint globalIndexCount;
+};
 
-#define MAX_LIGHTS_PER_CLUSTER 100
+#define MAX_LIGHTS_PER_CLUSTER 30
 uniform float zFar;
 uniform float zNear;
 uniform bool showSlice;
@@ -62,39 +62,6 @@ vec3 sliceColors[8] = vec3[](
    vec3(1,  0,  0),  vec3( 1,  0,  1), vec3( 1, 1, 0),  vec3(1, 1, 1)
 );
 
-// void main(){
-
-//     vec3 result=vec3(0.0);
-// 	vec3 viewDir=normalize(IN.viewPos-IN.fragPos);
-// 	vec3 n=vec3(texture(texture_normal1,IN.texcoords))*2.0-1.0;
-// 	vec3 normal=normalize(IN.TBN*normalize(n));
-
-//     // globalIndexCount=0;
-//     // uint slice = uint(max(log2(linearDepth(gl_FragCoord.z)) * scale + bias, 0.0));
-//     // uvec3 cluster = uvec3(uvec2( gl_FragCoord.xy / clusterSizes[3] ), slice);
-//     // uint clusterIndex = cluster.x + clusterSizes.x * cluster.y + (clusterSizes.x * clusterSizes.y) * cluster.z;
-
-//     globalIndexCount=0;
-//     vec2 texCoord = vec2(gl_FragCoord.xy * pixelSize);
-//     uint clusterIndex = uint(texture(clusterIndexTex,texCoord).r);
-
-//     uint lightCount=lightGrids.data[clusterIndex].count;
-//     uint lightIndexOffset = lightGrids.data[clusterIndex].offset;
-
-//     for(uint i = 0; i < lightCount; i++){
-//         uint lightIndex = lightIndexList.data[lightIndexOffset + i];
-//         PointLight light = lightBuffer.data[lightIndex];
-//         result+=calculatePointLight(light, viewDir, normal, IN.fragPos);
-//     }
-
-//     if(showSlice){
-//         //FragColor = vec4(sliceColors[uint(mod(float(slice), 8.0))], 1.0);
-//     }else{
-//         FragColor=vec4(result,1.0);
-//     }
-    
-// }
-
 void main(){
 
     vec3 result=vec3(0.0);
@@ -102,14 +69,19 @@ void main(){
 	vec3 n=vec3(texture(texture_normal1,IN.texcoords))*2.0-1.0;
 	vec3 normal=normalize(IN.TBN*normalize(n));
 
+    globalIndexCount=0;
     uint slice = uint(max(log2(linearDepth(gl_FragCoord.z)) * scale + bias, 0.0));
     uvec3 cluster = uvec3(uvec2( gl_FragCoord.xy / clusterSizes[3] ), slice);
     uint clusterIndex = cluster.x + clusterSizes.x * cluster.y + (clusterSizes.x * clusterSizes.y) * cluster.z;
 
-    
-    uint lightIndexOffset = clusterIndex*MAX_LIGHTS_PER_CLUSTER;
+    // globalIndexCount=0;
+    // vec2 texCoord = vec2(gl_FragCoord.xy * pixelSize);
+    // uint clusterIndex = uint(texture(clusterIndexTex,texCoord).r);
 
-    for(uint i = 0; i < MAX_LIGHTS_PER_CLUSTER&&lightIndexList.data[lightIndexOffset + i]!=3000; i++){
+    uint lightCount=lightGrids.data[clusterIndex].count;
+    uint lightIndexOffset = lightGrids.data[clusterIndex].offset;
+
+    for(uint i = 0; i < lightCount; i++){
         uint lightIndex = lightIndexList.data[lightIndexOffset + i];
         PointLight light = lightBuffer.data[lightIndex];
         result+=calculatePointLight(light, viewDir, normal, IN.fragPos);
@@ -122,6 +94,34 @@ void main(){
     }
     
 }
+
+// void main(){
+
+//     vec3 result=vec3(0.0);
+// 	vec3 viewDir=normalize(IN.viewPos-IN.fragPos);
+// 	vec3 n=vec3(texture(texture_normal1,IN.texcoords))*2.0-1.0;
+// 	vec3 normal=normalize(IN.TBN*normalize(n));
+
+//     uint slice = uint(max(log2(linearDepth(gl_FragCoord.z)) * scale + bias, 0.0));
+//     uvec3 cluster = uvec3(uvec2( gl_FragCoord.xy / clusterSizes[3] ), slice);
+//     uint clusterIndex = cluster.x + clusterSizes.x * cluster.y + (clusterSizes.x * clusterSizes.y) * cluster.z;
+
+    
+//     uint lightIndexOffset = clusterIndex*MAX_LIGHTS_PER_CLUSTER;
+
+//     for(uint i = 0; i < MAX_LIGHTS_PER_CLUSTER&&lightIndexList.data[lightIndexOffset + i]!=3000; i++){
+//         uint lightIndex = lightIndexList.data[lightIndexOffset + i];
+//         PointLight light = lightBuffer.data[lightIndex];
+//         result+=calculatePointLight(light, viewDir, normal, IN.fragPos);
+//     }
+
+//     if(showSlice){
+//         FragColor = vec4(sliceColors[uint(mod(float(slice), 8.0))], 1.0);
+//     }else{
+//         FragColor=vec4(result,1.0);
+//     }
+    
+// }
 
 // void main(){
 

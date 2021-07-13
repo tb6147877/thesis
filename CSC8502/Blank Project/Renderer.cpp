@@ -2,12 +2,12 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	//GetComputeShaderLimit();
-	m_shadingType = ShadingType::Cluster;
+	m_shadingType = ShadingType::Forward;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
 
-	//float zsliceNum = (std::log(m_far / m_near)/ std::log(1+2*std::tan(45.0f)/18.0f));  //todo, calculate how many slices in z axis
+	//float zsliceNum = (std::log(m_far / m_near)/ std::log(1+2*std::tan(45.0f)/ (float)CLUSTER_SIZE_Y));  //todo, calculate how many slices in z axis
 
 	m_model = new Assimp_Model("sponza.obj");
 	m_quad = new Quad();
@@ -229,7 +229,7 @@ void Renderer::UpdateScene(float dt) {
 	viewMatrix = m_camera->BuildViewMatrix();
 	m_frustum->FromMatrix(projMatrix*viewMatrix);
 	UpdateLights(dt);
-	m_fps = CalculateFPS(dt);
+	m_fps=CalculateFPS(dt);
 }
 
 void Renderer::RenderScene()	{
@@ -257,7 +257,7 @@ void Renderer::RenderScene()	{
 	case Renderer::Cluster:
 		//3.Cluster Forward Rendering
 		DepthPrePass();
-		//SelectActiveClusters();
+		SelectActiveClusters();
 		ClusterLightCulling();
 		ClusterCalculateLighting();
 		break;
@@ -277,6 +277,7 @@ void Renderer::RenderScene()	{
 
 void Renderer::ForwardRendering(){
 	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_FALSE);
@@ -345,7 +346,7 @@ void Renderer::RenderLighting() {
 		{
 			continue;
 		}
-		//std::cout << i << std::endl;
+		
 		glUniform1f(glGetUniformLocation(m_lightingShader->GetProgram(), "lightRadius"), m_lights[i]->GetRadius());
 		glUniform3fv(glGetUniformLocation(m_lightingShader->GetProgram(), "lightPos"), 1, (float*)&m_lights[i]->GetPosition());
 
@@ -445,7 +446,7 @@ void Renderer::InitForwardPlusRendering() {
 	//split screen with 16*16 tiles
 	m_workGroupsX = (width + (width % TILE_SIZE)) / TILE_SIZE;//judge if the exceeded pixels greater than half of 16, if it is, will get more tile
 	m_workGroupsY = (height + (height % TILE_SIZE)) / TILE_SIZE;
-	size_t numberOfTiles = m_workGroupsX * m_workGroupsY;
+	size_t numberOfTiles = m_workGroupsX * m_workGroupsY;//13430=158*85
 
 	glGenBuffers(1, &m_lightsSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightsSSBO);
@@ -574,28 +575,28 @@ void Renderer::InitClusterRendering() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightIndexListSSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, totalNumLights * sizeof(unsigned int), NULL, GL_STATIC_COPY);
 
-	////init space of light grids
-	//glGenBuffers(1, &m_lightGridsSSBO);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightGridsSSBO);
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * 2 * sizeof(unsigned int), NULL, GL_STATIC_COPY);
+	//init space of light grids
+	glGenBuffers(1, &m_lightGridsSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightGridsSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * 2 * sizeof(unsigned int), NULL, GL_STATIC_COPY);
 
-	////init space of light index count
-	//glGenBuffers(1, &m_globalLightIndexCountSSBO);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_globalLightIndexCountSSBO);
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), NULL, GL_STATIC_COPY);
+	//init space of light index count
+	glGenBuffers(1, &m_globalLightIndexCountSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_globalLightIndexCountSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), NULL, GL_STATIC_COPY);
 
-	//m_activeClustersCount = 0;
-	//glGenBuffers(1, &m_activeClustersCountSSBO);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), &m_activeClustersCount, GL_DYNAMIC_READ);
+	m_activeClustersCount = 0;
+	glGenBuffers(1, &m_activeClustersCountSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), &m_activeClustersCount, GL_DYNAMIC_READ);
 
-	//glGenBuffers(1, &m_activeClustersSSBO);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersSSBO);
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber* sizeof(unsigned int), NULL, GL_STATIC_DRAW);
+	glGenBuffers(1, &m_activeClustersSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber* sizeof(unsigned int), NULL, GL_STATIC_DRAW);
 
-	//glGenBuffers(1, &m_denseActiveClustersSSBO);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_denseActiveClustersSSBO);
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * sizeof(unsigned int), NULL, GL_STATIC_DRAW);
+	glGenBuffers(1, &m_denseActiveClustersSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_denseActiveClustersSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_clusterNumber * sizeof(unsigned int), NULL, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -616,7 +617,6 @@ void Renderer::SelectActiveClusters() {
 
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClustersSSBO);
-	glUniform2f(glGetUniformLocation(m_c_selectActiveShader->GetProgram(), "pixelSize"), 1.0f / (float)width, 1.0f / (float)height);
 	glUniform1f(glGetUniformLocation(m_c_selectActiveShader->GetProgram(), "zNear"), m_near);
 	glUniform1f(glGetUniformLocation(m_c_selectActiveShader->GetProgram(), "zFar"), m_far);
 	glUniform1i(glGetUniformLocation(m_c_selectActiveShader->GetProgram(), "depthTex"), 5);
@@ -628,7 +628,6 @@ void Renderer::SelectActiveClusters() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -636,13 +635,7 @@ void Renderer::SelectActiveClusters() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClustersSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, m_denseActiveClustersSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, m_activeClustersCountSSBO);
-
 	m_c_buildDenseClustersListShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
-
-
-	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, 0);*/
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
 	unsigned int* temp1 = (unsigned int*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
@@ -660,18 +653,17 @@ void Renderer::ClusterLightCulling(){
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_clusterBasicSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_lightsSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_lightIndexListSSBO);
-	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_lightGridsSSBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_globalLightIndexCountSSBO);*/
-	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClusterListSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_lightGridsSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_globalLightIndexCountSSBO);
 	//m_c_lightCullingShader->Dispatch(1, 1, 6);
 	// 
-	m_c_lightCullingShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
+	//m_c_lightCullingShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
 
 
 	//std::cout << m_activeClustersCount << "\n";
-	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, m_denseActiveClustersSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, m_denseActiveClustersSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, m_activeClustersCountSSBO);
-	m_c_lightCullingShader->Dispatch(m_activeClustersCount,1,1);*/
+	m_c_lightCullingShader->Dispatch(m_activeClustersCount,1,1);
 }
 
 
@@ -699,11 +691,11 @@ void Renderer::ClusterCalculateLighting() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
-	/*glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, 0);*/
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, 0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(m_finalShader);

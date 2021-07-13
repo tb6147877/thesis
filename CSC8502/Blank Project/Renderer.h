@@ -67,7 +67,7 @@ public:
 	 std::string GetShadingTypeStr();
 
 protected:
-	const unsigned int NUM_LIGHTS = 1000;
+	const unsigned int NUM_LIGHTS = 40;
 	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 120.0f;
 	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 100;
@@ -135,12 +135,12 @@ protected:
 
 	//this cluster size must fit resolution of render target, eg. the render target is 16:9, so x is 16, y is 9
 	//1280:720 fit this resolution
-	const GLuint CLUSTER_SIZE_X = 16;
+	/*const GLuint CLUSTER_SIZE_X = 16;
 	const GLuint CLUSTER_SIZE_Y = 9;
-	const GLuint CLUSTER_SIZE_Z = 24;
-	/*const GLuint CLUSTER_SIZE_X =48;
-	const GLuint CLUSTER_SIZE_Y = 27;
-	const GLuint CLUSTER_SIZE_Z = 72;*/
+	const GLuint CLUSTER_SIZE_Z = 24;*/
+	const GLuint CLUSTER_SIZE_X =40;
+	const GLuint CLUSTER_SIZE_Y = 23;
+	const GLuint CLUSTER_SIZE_Z = 61;
 	float m_near=1.0f, m_far=3000.0f;
 	GLuint m_clusterNumber = CLUSTER_SIZE_X * CLUSTER_SIZE_Y * CLUSTER_SIZE_Z;
 	GLuint m_clusterAABBSSBO, m_clusterBasicSSBO, m_lightGridsSSBO, 

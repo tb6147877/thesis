@@ -7,11 +7,11 @@ struct ClusterAABBVolume{
 	vec4 maxPoint;
 };
 
-layout (std430, binding=1) buffer ClusterAABB{
+layout (std430, binding=1) writeonly buffer ClusterAABB{
 	ClusterAABBVolume data[];
 }clusterAABBs;
 
-layout (std430, binding=2) buffer ClusterBasicData{
+layout (std430, binding=2) readonly buffer ClusterBasicData{
 	mat4 inverseProj;
     uvec4 clusterSizes;
     uvec2 screenSizes;
