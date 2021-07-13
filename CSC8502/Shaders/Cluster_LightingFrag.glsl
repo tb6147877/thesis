@@ -92,7 +92,7 @@ void main(){
     }else if(showSlice==0){
         FragColor=vec4(result,1.0);
     }else{
-        FragColor=vec4(float(lightCount)/MAX_LIGHTS_PER_CLUSTER);
+        FragColor=vec4(vec3(float(lightCount)/MAX_LIGHTS_PER_CLUSTER),1.0);
     }
     
 }
