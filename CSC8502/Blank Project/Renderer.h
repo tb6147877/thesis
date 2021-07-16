@@ -67,7 +67,7 @@ public:
 	 std::string GetShadingTypeStr();
 
 protected:
-	const unsigned int NUM_LIGHTS = 1000;
+	const unsigned int NUM_LIGHTS = 350;
 	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 120.0f;
 	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 100;

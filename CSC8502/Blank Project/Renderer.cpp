@@ -1,13 +1,15 @@
 ﻿#include "Renderer.h"
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	//GetComputeShaderLimit();
-	m_shadingType = ShadingType::Cluster;
+	GetComputeShaderLimit();
+	m_shadingType = ShadingType::ForwardPlus;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
 
-	//float zsliceNum = (std::log(m_far / m_near)/ std::log(1+2*std::tan(45.0f)/ (float)CLUSTER_SIZE_Y));  //todo, calculate how many slices in z axis
+	
+
+	//float zsliceNum = (std::log(m_far / m_near)/ std::log(1+2.0f*std::tan(22.5f)/ (float)CLUSTER_SIZE_Y));  //todo, calculate how many slices in z axis
 
 	m_model = new Assimp_Model("sponza.obj");
 	m_quad = new Quad();
@@ -635,7 +637,8 @@ void Renderer::SelectActiveClusters() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_activeClustersSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, m_denseActiveClustersSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, m_activeClustersCountSSBO);
-	m_c_buildDenseClustersListShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
+	//m_c_buildDenseClustersListShader->Dispatch(CLUSTER_SIZE_X, CLUSTER_SIZE_Y, CLUSTER_SIZE_Z);
+	m_c_buildDenseClustersListShader->Dispatch(1, 1, CLUSTER_SIZE_Z);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_activeClustersCountSSBO);
 	unsigned int* temp1 = (unsigned int*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
