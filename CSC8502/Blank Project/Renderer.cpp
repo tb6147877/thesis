@@ -2,7 +2,7 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	GetComputeShaderLimit();
-	m_shadingType = ShadingType::ForwardPlus;
+	m_shadingType = ShadingType::Forward;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
@@ -18,6 +18,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_depthPreHelper =new DepthPreHelper{ width,height };
 	m_finalHelper=new FinalOutputHelper{ width,height };
 	m_frustum = new Frustum{};
+	m_msaahelper=new MSAAHelper{ width,height };
 
 	//m_modelShader = new Shader("ModelBasicVert.glsl", "ModelBasicFrag.glsl");
 	m_modelShader = new Shader("ForwardVert.glsl", "ForwardFrag.glsl");
@@ -77,6 +78,7 @@ Renderer::~Renderer(void)	{
 	delete m_finalHelper;
 	delete m_finalShader;
 	delete m_frustum;
+	delete m_msaahelper;
 
 	delete m_fillBufferShader;
 	delete m_lightingShader;
@@ -241,8 +243,8 @@ void Renderer::RenderScene()	{
 	{
 	case Renderer::Forward:
 		//0.Forward Rendering
-		DepthPrePass();
-		ForwardRendering();
+		DepthPrePass(true);
+		ForwardRendering(true);
 		break;
 	case Renderer::Deferred:
 		//1.Deferred Rendering
@@ -277,28 +279,57 @@ void Renderer::RenderScene()	{
 
 }
 
-void Renderer::ForwardRendering(){
-	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glDepthFunc(GL_LEQUAL);
-	glDepthMask(GL_FALSE);
-	BindShader(m_modelShader);
-	UpdateShaderMatrices();
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightsSSBO);
-	glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
+void Renderer::ForwardRendering(const bool isMSAA){
+	if (isMSAA)
+	{
+		glDepthFunc(GL_LEQUAL);
+		glDepthMask(GL_FALSE);
+		BindShader(m_modelShader);
+		UpdateShaderMatrices();
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightsSSBO);
+		glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
 
-	m_model->Draw(m_modelShader);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		m_model->Draw(m_modelShader);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	BindShader(m_finalShader);
-	glUniform1i(glGetUniformLocation(m_finalShader->GetProgram(), "diffTex"), 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_finalHelper->GetTex());
-	glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), m_exposure);
-	m_quad->Draw();
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_msaahelper->GetFBO());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_finalHelper->GetFBO());
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		BindShader(m_finalShader);
+		glUniform1i(glGetUniformLocation(m_finalShader->GetProgram(), "diffTex"), 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_finalHelper->GetTex());
+		glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), m_exposure);
+		m_quad->Draw();
+	}
+	else {
+		glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glDepthFunc(GL_LEQUAL);
+		glDepthMask(GL_FALSE);
+		BindShader(m_modelShader);
+		UpdateShaderMatrices();
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightsSSBO);
+		glUniform3fv(glGetUniformLocation(m_modelShader->GetProgram(), "viewPos"), 1, (float*)&m_camera->GetPosition());
+
+		m_model->Draw(m_modelShader);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		BindShader(m_finalShader);
+		glUniform1i(glGetUniformLocation(m_finalShader->GetProgram(), "diffTex"), 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_finalHelper->GetTex());
+		glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), m_exposure);
+		m_quad->Draw();
+	}
 }
 
 void Renderer::FillGBuffer() {
@@ -425,23 +456,39 @@ void Renderer::CombineBuffer() {
 }
 
 
-void Renderer::DepthPrePass(){
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
+void Renderer::DepthPrePass(const bool isMSAA){
+	if (isMSAA)
+	{
+		glDepthFunc(GL_LESS);
+		glDepthMask(GL_TRUE);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, m_depthPreHelper->GetFBO());
-	glClear(GL_DEPTH_BUFFER_BIT);
-	BindShader(m_depthPreShader);
-	UpdateShaderMatrices();
+		glBindFramebuffer(GL_FRAMEBUFFER, m_msaahelper->GetFBO());
+		glClear(GL_DEPTH_BUFFER_BIT| GL_COLOR_BUFFER_BIT);
 
-	m_model->Draw(m_depthPreShader);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		BindShader(m_depthPreShader);
+		UpdateShaderMatrices();
 
-	//try to use depth pre pass to decrease over draw
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_depthPreHelper->GetFBO());
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_finalHelper->GetFBO());
-	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		m_model->Draw(m_depthPreShader);
+	}
+	else {
+		glDepthFunc(GL_LESS);
+		glDepthMask(GL_TRUE);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, m_depthPreHelper->GetFBO());
+		glClear(GL_DEPTH_BUFFER_BIT);
+		BindShader(m_depthPreShader);
+		UpdateShaderMatrices();
+
+		m_model->Draw(m_depthPreShader);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//try to use depth pre pass to decrease over draw
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_depthPreHelper->GetFBO());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_finalHelper->GetFBO());
+		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	
 }
 
 void Renderer::InitForwardPlusRendering() {

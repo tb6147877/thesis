@@ -15,6 +15,7 @@
 #include "DepthPreHelper.h"
 #include "FinalOutputHelper.h"
 #include "SelectActiveClusterHelper.h"
+#include "MSAAHelper.h"
 
 struct PointLight
 {
@@ -67,7 +68,7 @@ public:
 	 std::string GetShadingTypeStr();
 
 protected:
-	const unsigned int NUM_LIGHTS = 350;
+	const unsigned int NUM_LIGHTS = 800;
 	const int MAX_NUM_LIGHTS = 2048;
 	const float LIGHT_RADIUS = 120.0f;
 	const GLuint MAX_LIGHT_NUMBER_PER_CLUSTER = 100;
@@ -96,13 +97,14 @@ protected:
 	void UpdateLights(const float dt);
 	Vector3 RandomLightPosition(std::uniform_real_distribution<> dis, std::mt19937 gen);
 	int CalculateFPS(const float dt);
-	void DepthPrePass();
+	void DepthPrePass(const bool isMSAA=false);
 	void RecordPerformaceData();
 	
 
 	//Forward Shading part
+	MSAAHelper* m_msaahelper;
 	Shader* m_modelShader;
-	void ForwardRendering();
+	void ForwardRendering(const bool isMSAA = false);
 
 	//Deferred Shaing part
 	Shader* m_fillBufferShader;

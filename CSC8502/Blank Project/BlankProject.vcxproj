@@ -145,6 +145,7 @@
     <ClCompile Include="DepthPreHelper.cpp" />
     <ClCompile Include="FinalOutputHelper.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MSAAHelper.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SelectActiveClusterHelper.cpp" />
     <ClCompile Include="stb_image.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="DeferredRenderingHelper.h" />
     <ClInclude Include="DepthPreHelper.h" />
     <ClInclude Include="FinalOutputHelper.h" />
+    <ClInclude Include="MSAAHelper.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SelectActiveClusterHelper.h" />
   </ItemGroup>
