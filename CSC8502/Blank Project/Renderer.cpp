@@ -2,7 +2,7 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	GetComputeShaderLimit();
-	m_shadingType = ShadingType::Forward;
+	m_shadingType = ShadingType::Cluster;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
@@ -583,7 +583,11 @@ void Renderer::DrawDepthDebug() {
 }
 
 void Renderer::DrawLightDebug() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_finalHelper->GetFBO());
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_FALSE);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(m_fp_lightDebugShader);
 	UpdateShaderMatrices();
 	glUniform1i(glGetUniformLocation(m_fp_lightDebugShader->GetProgram(), "totalLightCount"), NUM_LIGHTS);
@@ -591,6 +595,16 @@ void Renderer::DrawLightDebug() {
 	m_model->Draw(m_fp_lightDebugShader);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	BindShader(m_finalShader);
+	glUniform1i(glGetUniformLocation(m_finalShader->GetProgram(), "diffTex"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_finalHelper->GetTex());
+	glUniform1f(glGetUniformLocation(m_finalShader->GetProgram(), "exposure"), m_exposure);
+	m_quad->Draw();
 }
 
 void Renderer::InitClusterRendering() {
