@@ -6,17 +6,17 @@ struct PointLight {
 };
 
 //ssbo
-layout(std430, binding = 0) readonly buffer LightBuffer {
+layout(std430, binding = 0) readonly buffer LightSSBO {
 	PointLight data[];
-} lightBuffer;
+} lightList;
 
 struct VisibleIndex {
 	int index;
 };
 
-layout(std430, binding = 1) writeonly buffer VisibleLightIndicesBuffer {
+layout(std430, binding = 1) writeonly buffer VisibleLightIndicesSSBO {
 	VisibleIndex data[];
-} visibleLightIndicesBuffer;
+} visibleLightIndicesList;
 
 #define MAX_NR_LIGHT 2048
 #define MAX_NR_LIGHT_PER_TILE 50
@@ -32,13 +32,13 @@ uniform mat4 projMatrix;
 uniform ivec2 screenSize;
 uniform int lightCount;
 
-//shared values
+//shared values in workgroup
 shared uint minDepthInt;
 shared uint maxDepthInt;
 shared uint visibleLightCount;
-shared vec4 frustumPlanes[6];
+shared vec4 tileFrust[6];
 shared int visibleLightIndices[MAX_NR_LIGHT_PER_TILE];
-shared mat4 viewProjection;
+shared mat4 vpMat;
 
 #define TILE_SIZE 8
 layout(local_size_x = TILE_SIZE, local_size_y = TILE_SIZE, local_size_z = 1) in;
@@ -46,16 +46,15 @@ layout(local_size_x = TILE_SIZE, local_size_y = TILE_SIZE, local_size_z = 1) in;
 void main(){
 	//0.init
 	ivec2 location = ivec2(gl_GlobalInvocationID.xy);
-	ivec2 itemID = ivec2(gl_LocalInvocationID.xy);
 	ivec2 tileID = ivec2(gl_WorkGroupID.xy);
 	ivec2 tileNumber = ivec2(gl_NumWorkGroups.xy);
-	uint index = tileID.y * tileNumber.x + tileID.x;
+	uint tileIndex = tileID.y * tileNumber.x + tileID.x;
 
 	if (gl_LocalInvocationIndex == 0) {
 		minDepthInt = 0xFFFFFFFF;//-1
 		maxDepthInt = 0;
 		visibleLightCount = 0;
-		viewProjection = projMatrix * viewMatrix;
+		vpMat = projMatrix * viewMatrix;
 	}
 
 	barrier();
@@ -66,7 +65,7 @@ void main(){
 	float depth = texture(depthTex, texcoord).r;
 	depth = (0.5 * projMatrix[3][2]) / (depth + 0.5 * projMatrix[2][2] - 0.5);
 
-	uint depthInt = floatBitsToUint(depth);
+	uint depthInt = floatBitsToUint(depth);//convert to uint to do atomic function in work group
 	atomicMin(minDepthInt, depthInt);
 	atomicMax(maxDepthInt, depthInt);
 
@@ -79,16 +78,16 @@ void main(){
 
 		//map the plane's distance to -1,1. because need to calculate the ndc of the plane
 		//in x and : 0,1 => *2 => 0,2 => -1 => -1,1; 0,1 => *2 => 0,2 => *-1 => -2,0 => +1 => -1,1
-		vec2 negativeStep = (2.0 * vec2(tileID)) / vec2(tileNumber);
-		vec2 positiveStep = (2.0 * vec2(tileID + ivec2(1, 1))) / vec2(tileNumber);
+		vec2 negUnit = (2.0 * vec2(tileID)) / vec2(tileNumber);
+		vec2 positiveUnit = (2.0 * vec2(tileID + ivec2(1, 1))) / vec2(tileNumber);
 
 		//xyz of the plane is normal, and w is  distance
-		frustumPlanes[0] = vec4(1.0, 0.0, 0.0, 1.0 - negativeStep.x); // Left
-		frustumPlanes[1] = vec4(-1.0, 0.0, 0.0, -1.0 + positiveStep.x); // Right
-		frustumPlanes[2] = vec4(0.0, 1.0, 0.0, 1.0 - negativeStep.y); // Bottom
-		frustumPlanes[3] = vec4(0.0, -1.0, 0.0, -1.0 + positiveStep.y); // Top
-		frustumPlanes[4] = vec4(0.0, 0.0, -1.0, -minDepth); // Near, origin is 0,1, also map to -1,1 by *-1
-		frustumPlanes[5] = vec4(0.0, 0.0, 1.0, maxDepth); // Far
+		tileFrust[0] = vec4(1.0, 0.0, 0.0, 1.0 - negUnit.x); // Left
+		tileFrust[1] = vec4(-1.0, 0.0, 0.0, -1.0 + positiveUnit.x); // Right
+		tileFrust[2] = vec4(0.0, 1.0, 0.0, 1.0 - negUnit.y); // Bottom
+		tileFrust[3] = vec4(0.0, -1.0, 0.0, -1.0 + positiveUnit.y); // Top
+		tileFrust[4] = vec4(0.0, 0.0, -1.0, -minDepth); // Near, origin is 0,1, also map to -1,1 by *-1
+		tileFrust[5] = vec4(0.0, 0.0, 1.0, maxDepth); // Far
 		//now this is a cube in ndc, its range is -1,1 
 		//*************************************
 
@@ -96,7 +95,7 @@ void main(){
 			//transform the cube from ndc into world space, it's left multiply and it means right multiply transpose matrix
 			// its xyz is normal, so w(distance) is not important, so only 3x3 matrix of viewProjection is useful
 			//so viewProjection's transpose matrix is inverse matrix, so it can transform ndc to world space
-			frustumPlanes[i] *= viewProjection;//it is tilted, so need view and projection matrix
+			tileFrust[i] *= vpMat;//it is tilted, so need view and projection matrix
 
 			//these lines equal to above line
 			//float temp=frustumPlanes[i].w;
@@ -105,28 +104,28 @@ void main(){
 			//frustumPlanes[i].xyz/=frustumPlanes[i].w;
 			//frustumPlanes[i].w=temp;
 
-			frustumPlanes[i] /= length(frustumPlanes[i].xyz);// normalize operation
+			tileFrust[i] /= length(tileFrust[i].xyz);// normalize operation
 		}
 
-		frustumPlanes[4] *= viewMatrix;//near plane is not tilted, so it don't need projection matrix
+		tileFrust[4] *= viewMatrix;//near plane is not tilted, so it don't need projection matrix
 		//float temp=frustumPlanes[4].w;
 		//frustumPlanes[4].w=1.0;
 		//frustumPlanes[4] = inverseView*frustumPlanes[4];
 		//frustumPlanes[4].xyz/=frustumPlanes[4].w;
 		//frustumPlanes[4].w=temp;
-		frustumPlanes[4] /= length(frustumPlanes[4].xyz);// normalize operation
+		tileFrust[4] /= length(tileFrust[4].xyz);// normalize operation
 
-		frustumPlanes[5] *= viewMatrix;//far plane is not tilted, so it don't need projection matrix
+		tileFrust[5] *= viewMatrix;//far plane is not tilted, so it don't need projection matrix
 		//temp=frustumPlanes[5].w;
 		//frustumPlanes[5].w=1.0;
 		//frustumPlanes[5] = inverseView*frustumPlanes[5];
 		//frustumPlanes[5].xyz/=frustumPlanes[5].w;
 		//frustumPlanes[5].w=temp;
-		frustumPlanes[5] /= length(frustumPlanes[5].xyz);// normalize operation
+		tileFrust[5] /= length(tileFrust[5].xyz);// normalize operation
 	}
 	barrier();
 
-	//3.Cull lights.
+	//3.lights culling
 	uint threadCount = TILE_SIZE * TILE_SIZE;
 	uint passCount = (lightCount + threadCount - 1) / threadCount;
 	for (uint i = 0; i < passCount; i++) {
@@ -135,13 +134,13 @@ void main(){
 			break;
 		}
 
-		vec4 position = vec4(lightBuffer.data[lightIndex].position_radius.xyz,1.0);
-		float radius = lightBuffer.data[lightIndex].position_radius.w;
+		vec4 position = vec4(lightList.data[lightIndex].position_radius.xyz,1.0);
+		float radius = lightList.data[lightIndex].position_radius.w;
 
 		float distance = 0.0;
 		for (uint j = 0; j < 6; j++) {
 			//judge the intersection in world space
-			distance = dot(position, frustumPlanes[j]) + radius;//xyz of a plane is normal, w is distance
+			distance = dot(position, tileFrust[j]) + radius;//xyz of a plane is normal, w is distance
 
 			if (distance <= 0.0) {
 				break;
@@ -157,13 +156,13 @@ void main(){
 	barrier();
 
 	if (gl_LocalInvocationIndex == 0) {
-		uint offset = index * MAX_NR_LIGHT_PER_TILE; 
+		uint offset = tileIndex * MAX_NR_LIGHT_PER_TILE; 
 		for (uint i = 0; i < visibleLightCount; i++) {
-			visibleLightIndicesBuffer.data[offset + i].index = visibleLightIndices[i];
+			visibleLightIndicesList.data[offset + i].index = visibleLightIndices[i];
 		}
 
 		if (visibleLightCount != MAX_NR_LIGHT_PER_TILE) {
-			visibleLightIndicesBuffer.data[offset + visibleLightCount].index = -1;
+			visibleLightIndicesList.data[offset + visibleLightCount].index = -1;
 		}
 	}
 }
