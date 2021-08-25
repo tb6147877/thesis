@@ -37,8 +37,18 @@ static inline float DegToRad(const float rad)	{
 	return rad * PI / 180.0f;
 };
 
+//使用IDE调试用下面的路径
+#ifdef _DEBUG
 #define SHADERDIR	"../Shaders/"
 #define MESHDIR		"../Meshes/"
 #define TEXTUREDIR  "../Textures/"
 #define SOUNDSDIR	"../Sounds/"
 #define MODELSDIR	"../Models/"
+#endif
+
+//直接通过exe文件打开，要通过以下路径生成exe程序
+//#define SHADERDIR	"../../Shaders/"
+//#define MESHDIR		"../../Meshes/"
+//#define TEXTUREDIR  "../../Textures/"
+//#define SOUNDSDIR	"../../Sounds/"
+//#define MODELSDIR	"../../Models/"

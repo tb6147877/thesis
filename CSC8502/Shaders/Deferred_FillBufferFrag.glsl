@@ -22,5 +22,5 @@ void main(){
 
 	vec3 normal = texture (texture_normal1,IN.texcoords).rgb * 2.0 - 1.0;
  	normal = normalize(IN.TBN * normalize(normal));
- 	normTex=vec4(normal.xyz*0.5+0.5,1.0);
+ 	normTex=vec4(normal.xyz*0.5+0.5,1.0); //这个剩余的a通道可以存一个shininess
 }

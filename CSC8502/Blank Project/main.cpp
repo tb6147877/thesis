@@ -30,6 +30,14 @@ int main()	{
 			renderer.SwitchShadingType(Renderer::ShadingType::ForwardPlus_Debug_Depth);
 		}
 
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_5)) {
+			renderer.SetIsMSAA(true);
+		}
+
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_6)) {
+			renderer.SetIsMSAA(false);
+		}
+
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_7)) {
 			renderer.SetShowSlice(2);
 		}

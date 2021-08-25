@@ -2,7 +2,7 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	GetComputeShaderLimit();
-	m_shadingType = ShadingType::ForwardPlus;
+	m_shadingType = ShadingType::Cluster;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
@@ -41,6 +41,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	m_c_buildDenseClustersListShader= new ComputeShader("Cluster_BuildDenseClustersComp.glsl");
 
 	//modelMatrix = Matrix4::Scale(Vector3{ 0.1f,0.1f,0.1f });
+	//modelMatrix = Matrix4::Translation(Vector3{ 0.0f,0.0f,300.0f });
 
 	if (!m_modelShader->LoadSuccess() 
 		|| !m_finalShader->LoadSuccess()
@@ -243,8 +244,8 @@ void Renderer::RenderScene()	{
 	{
 	case Renderer::Forward:
 		//0.Forward Rendering
-		DepthPrePass(true);
-		ForwardRendering(true);
+		DepthPrePass(m_isMsaa);
+		ForwardRendering(m_isMsaa);
 		break;
 	case Renderer::Deferred:
 		//1.Deferred Rendering
@@ -574,7 +575,7 @@ void Renderer::CalculateLighting() {
 void Renderer::DrawDepthDebug() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
-
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	BindShader(m_fp_depthDebugShader);
 	UpdateShaderMatrices();
 	glUniform1f(glGetUniformLocation(m_fp_depthDebugShader->GetProgram(), "near"), 1.0f);

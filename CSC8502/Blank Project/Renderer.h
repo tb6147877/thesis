@@ -64,6 +64,7 @@ public:
 	 void SwitchShadingType(const ShadingType type) { m_shadingType = type; }
 	 void SetExposure(const float x) { m_exposure += x; }
 	 void SetShowSlice(const int flag) { m_showSlices = flag; }
+	 void SetIsMSAA(const bool flag) { m_isMsaa = flag; }
 	 int GetFPS() { return m_fps; }
 	 std::string GetShadingTypeStr();
 
@@ -103,6 +104,7 @@ protected:
 
 	//Forward Shading part
 	MSAAHelper* m_msaahelper;
+	bool m_isMsaa{false};
 	Shader* m_modelShader;
 	void ForwardRendering(const bool isMSAA = false);
 
