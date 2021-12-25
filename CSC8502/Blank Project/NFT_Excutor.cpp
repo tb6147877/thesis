@@ -1,0 +1,113 @@
+#include "NFT_Excutor.h"
+#include "../nclgl/Shader.h"
+#include "../nclgl/Quad.h"
+#include <stb_image.h>
+
+NFT_Excutor::NFT_Excutor(const int width, const int height, const std::string& vertPath, const std::string& fragPath) :m_width{ width }, m_height{ height } {
+	InitFBO(width, height);
+	InitShader(vertPath, fragPath);
+	m_quad = new Quad();
+}
+
+NFT_Excutor::~NFT_Excutor() {
+	if (m_nft_shader != nullptr)
+	{
+		delete m_nft_shader;
+		m_nft_shader = nullptr;
+	}
+
+	if (m_quad != nullptr)
+	{
+		delete m_quad;
+		m_quad = nullptr;
+	}
+}
+
+void NFT_Excutor::InitShader(const std::string& vertPath, const std::string& fragPath) {
+	m_nft_shader = new Shader(vertPath, fragPath);
+}
+
+void NFT_Excutor::InitFBO(const int width, const int height) {
+	glGenFramebuffers(1, &m_resultFBO);
+
+	GenerateScreenTexture(m_resultTex, 1);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_resultFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_resultTex, 0);
+
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		return;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void NFT_Excutor::GenerateScreenTexture(GLuint& tex, const int type) {
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	GLuint format, t_type;
+	switch (type)
+	{
+	case 0:
+		format = GL_DEPTH_COMPONENT24;
+		t_type = GL_DEPTH_COMPONENT;
+		glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, t_type, GL_FLOAT, NULL);
+		break;
+	case 1:
+		format = GL_RGBA;
+		t_type = GL_RGBA;
+		glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, t_type, GL_UNSIGNED_BYTE, NULL);
+		break;
+	case 2:
+		format = GL_RGBA16F;
+		t_type = GL_RGBA;
+		glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, t_type, GL_FLOAT, NULL);
+		break;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+GLuint NFT_Excutor::LoadTextureFromFile(char const* path) {
+	stbi_set_flip_vertically_on_load(true);
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Texture failed to load at path: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
+}

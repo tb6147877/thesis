@@ -2,12 +2,17 @@
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	GetComputeShaderLimit();
-	m_shadingType = ShadingType::Cluster;
+	m_shadingType = ShadingType::NFT_Creation;
 	m_exposure = 1.0f;
 	m_camera = new Camera(0.0f, 90.0f, Vector3{ 1100.0f,100.0f,0.0f });
 	projMatrix = Matrix4::Perspective(m_near, m_far, (float)width / (float)height, 45.0f);
 
-	
+	//nft reigon=========================================
+	std::cout << width << "," << height<<"\n";
+	//m_nft_simple_shader = new Shader("NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
+	m_nft = new TestNFT(1024, 1024, "NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
+
+	//===============================================
 
 	//float zsliceNum = (std::log(m_far / m_near)/ std::log(1+2.0f*std::tan(22.5f)/ (float)CLUSTER_SIZE_Y));  //todo, calculate how many slices in z axis
 
@@ -102,6 +107,8 @@ Renderer::~Renderer(void)	{
 	{
 		delete m_lights[i];
 	}
+
+	delete m_nft;
 }
 
 void Renderer::GetComputeShaderLimit() {
@@ -273,6 +280,9 @@ void Renderer::RenderScene()	{
 		DepthPrePass();
 		LightCullingPass();
 		DrawLightDebug();
+		break;
+	case Renderer::NFT_Creation:
+		m_nft->GenerateNFTs();
 		break;
 	default:
 		break;

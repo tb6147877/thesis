@@ -17,6 +17,8 @@
 #include "SelectActiveClusterHelper.h"
 #include "MSAAHelper.h"
 
+#include "TestNFT.h"
+
 struct PointLight
 {
 	Vector4 color;
@@ -52,7 +54,8 @@ public:
 		ForwardPlus,
 		Cluster,
 		ForwardPlus_Debug_Depth,
-		ForwardPlus_Debug_Lights
+		ForwardPlus_Debug_Lights,
+		NFT_Creation
 	};
 
 
@@ -162,6 +165,9 @@ protected:
 	void SelectActiveClusters();
 	void ClusterLightCulling();
 	void ClusterCalculateLighting();
+
+	//nft reigon
+	TestNFT* m_nft{ nullptr };
 
 	
 };

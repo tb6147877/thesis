@@ -152,17 +152,21 @@
     <ClCompile Include="FinalOutputHelper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MSAAHelper.cpp" />
+    <ClCompile Include="NFT_Excutor.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SelectActiveClusterHelper.cpp" />
     <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="TestNFT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeferredRenderingHelper.h" />
     <ClInclude Include="DepthPreHelper.h" />
     <ClInclude Include="FinalOutputHelper.h" />
     <ClInclude Include="MSAAHelper.h" />
+    <ClInclude Include="NFT_Excutor.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SelectActiveClusterHelper.h" />
+    <ClInclude Include="TestNFT.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,7 +2,10 @@
 #include "Renderer.h"
 
 int main()	{
-	Window w("NCL Thesis!", 1280, 720, false);
+	int width = 1024, height = 1024;
+
+	int x_offset = 16, y_offset = 39;
+	Window w("NCL Thesis!", width + x_offset, width + y_offset, false);
 
 	if(!w.HasInitialised()) {
 		return -1;
