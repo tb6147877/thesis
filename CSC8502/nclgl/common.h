@@ -46,6 +46,8 @@ static inline float DegToRad(const float rad)	{
 #define MODELSDIR	"../Models/"
 #endif
 
+
+
 //直接通过exe文件打开，要通过以下路径生成exe程序
 //#define SHADERDIR	"../../Shaders/"
 //#define MESHDIR		"../../Meshes/"
