@@ -49,13 +49,19 @@ void TestNFT::GenerateNFTs() {
 	glBindTexture(GL_TEXTURE_2D, m_bg);
 	m_quad->Draw();
 
-	/*glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-	glActiveTexture(GL_TEXTURE0);*/
+	glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_ele1);
 	m_quad->Draw();
 
-	/*glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-	glActiveTexture(GL_TEXTURE0);*/
+	glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_ele2);
 	m_quad->Draw();
+
+	if (!m_isCompleted)
+	{
+		SerializeTexture("C:/Users/tb614/Desktop/rrr.png");
+		m_isCompleted = true;
+	}
 }

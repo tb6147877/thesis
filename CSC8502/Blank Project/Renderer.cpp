@@ -16,63 +16,63 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	//float zsliceNum = (std::log(m_far / m_near)/ std::log(1+2.0f*std::tan(22.5f)/ (float)CLUSTER_SIZE_Y));  //todo, calculate how many slices in z axis
 
-	m_model = new Assimp_Model("sponza.obj");
-	m_quad = new Quad();
-	m_sphere = new Sphere();
-	m_deferredHelper = new DeferredRenderingHelper{ width,height };
-	m_depthPreHelper =new DepthPreHelper{ width,height };
-	m_finalHelper=new FinalOutputHelper{ width,height };
-	m_frustum = new Frustum{};
-	m_msaahelper=new MSAAHelper{ width,height };
+	//m_model = new Assimp_Model("sponza.obj");
+	//m_quad = new Quad();
+	//m_sphere = new Sphere();
+	//m_deferredHelper = new DeferredRenderingHelper{ width,height };
+	//m_depthPreHelper =new DepthPreHelper{ width,height };
+	//m_finalHelper=new FinalOutputHelper{ width,height };
+	//m_frustum = new Frustum{};
+	//m_msaahelper=new MSAAHelper{ width,height };
 
-	//m_modelShader = new Shader("ModelBasicVert.glsl", "ModelBasicFrag.glsl");
-	m_modelShader = new Shader("ForwardVert.glsl", "ForwardFrag.glsl");
-	m_finalShader = new Shader("FinalVert.glsl", "FinalFrag.glsl");
+	////m_modelShader = new Shader("ModelBasicVert.glsl", "ModelBasicFrag.glsl");
+	//m_modelShader = new Shader("ForwardVert.glsl", "ForwardFrag.glsl");
+	//m_finalShader = new Shader("FinalVert.glsl", "FinalFrag.glsl");
 
-	m_fillBufferShader = new Shader("Deferred_FillBufferVert.glsl", "Deferred_FillBufferFrag.glsl");
-	m_lightingShader = new Shader("Deferred_LightingVert.glsl", "Deferred_LightingFrag.glsl");
-	m_combineShader = new Shader("Deferred_CombineVert.glsl", "Deferred_CombineFrag.glsl");
-	
-	m_depthPreShader= new Shader("ForwardPlus_DepthPreVert.glsl", "ForwardPlus_DepthPreFrag.glsl");
-	m_lightCullingShader = new ComputeShader("ForwardPlus_LightCullingComp.glsl");
-	m_fp_lightingShader = new Shader("ForwardPlus_LightingVert.glsl", "ForwardPlus_LightingFrag.glsl");
-	m_fp_depthDebugShader = new Shader("DepthDebugVert.glsl","DepthDebugFrag.glsl");
-	m_fp_lightDebugShader = new Shader("ForwardPlus_LightingDebugVert.glsl", "ForwardPlus_LightingDebugFrag.glsl");
+	//m_fillBufferShader = new Shader("Deferred_FillBufferVert.glsl", "Deferred_FillBufferFrag.glsl");
+	//m_lightingShader = new Shader("Deferred_LightingVert.glsl", "Deferred_LightingFrag.glsl");
+	//m_combineShader = new Shader("Deferred_CombineVert.glsl", "Deferred_CombineFrag.glsl");
+	//
+	//m_depthPreShader= new Shader("ForwardPlus_DepthPreVert.glsl", "ForwardPlus_DepthPreFrag.glsl");
+	//m_lightCullingShader = new ComputeShader("ForwardPlus_LightCullingComp.glsl");
+	//m_fp_lightingShader = new Shader("ForwardPlus_LightingVert.glsl", "ForwardPlus_LightingFrag.glsl");
+	//m_fp_depthDebugShader = new Shader("DepthDebugVert.glsl","DepthDebugFrag.glsl");
+	//m_fp_lightDebugShader = new Shader("ForwardPlus_LightingDebugVert.glsl", "ForwardPlus_LightingDebugFrag.glsl");
 
-	m_c_generateClusterShader = new ComputeShader("Cluster_GenerateClusterComp.glsl");
-	m_c_lightingShader = new Shader("Cluster_LightingVert.glsl","Cluster_LightingFrag.glsl");
-	m_c_lightCullingShader = new ComputeShader("Cluster_LightCullingComp.glsl");
-	m_c_selectActiveShader = new Shader("Cluster_MarkActiveClusterVert.glsl", "Cluster_MarkActiveClusterFrag.glsl");
-	m_c_buildDenseClustersListShader= new ComputeShader("Cluster_BuildDenseClustersComp.glsl");
+	//m_c_generateClusterShader = new ComputeShader("Cluster_GenerateClusterComp.glsl");
+	//m_c_lightingShader = new Shader("Cluster_LightingVert.glsl","Cluster_LightingFrag.glsl");
+	//m_c_lightCullingShader = new ComputeShader("Cluster_LightCullingComp.glsl");
+	//m_c_selectActiveShader = new Shader("Cluster_MarkActiveClusterVert.glsl", "Cluster_MarkActiveClusterFrag.glsl");
+	//m_c_buildDenseClustersListShader= new ComputeShader("Cluster_BuildDenseClustersComp.glsl");
 
-	//modelMatrix = Matrix4::Scale(Vector3{ 0.1f,0.1f,0.1f });
-	//modelMatrix = Matrix4::Translation(Vector3{ 0.0f,0.0f,300.0f });
+	////modelMatrix = Matrix4::Scale(Vector3{ 0.1f,0.1f,0.1f });
+	////modelMatrix = Matrix4::Translation(Vector3{ 0.0f,0.0f,300.0f });
 
-	if (!m_modelShader->LoadSuccess() 
-		|| !m_finalShader->LoadSuccess()
-		|| !m_fillBufferShader->LoadSuccess() 
-		|| !m_lightingShader->LoadSuccess() 
-		|| !m_combineShader->LoadSuccess()
-		|| !m_depthPreShader->LoadSuccess()
-		|| !m_fp_lightingShader->LoadSuccess()
-		|| !m_fp_depthDebugShader->LoadSuccess()
-		|| !m_fp_lightDebugShader->LoadSuccess()
-		|| !m_c_lightingShader->LoadSuccess()
-		) {
-		return;
-	}
+	//if (!m_modelShader->LoadSuccess() 
+	//	|| !m_finalShader->LoadSuccess()
+	//	|| !m_fillBufferShader->LoadSuccess() 
+	//	|| !m_lightingShader->LoadSuccess() 
+	//	|| !m_combineShader->LoadSuccess()
+	//	|| !m_depthPreShader->LoadSuccess()
+	//	|| !m_fp_lightingShader->LoadSuccess()
+	//	|| !m_fp_depthDebugShader->LoadSuccess()
+	//	|| !m_fp_lightDebugShader->LoadSuccess()
+	//	|| !m_c_lightingShader->LoadSuccess()
+	//	) {
+	//	return;
+	//}
 
-	InitForwardPlusRendering();
-	GenerateLights();
-	InitClusterRendering();
+	//InitForwardPlusRendering();
+	//GenerateLights();
+	//InitClusterRendering();
 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
 	init = true;
 }
 
 Renderer::~Renderer(void)	{
-	RecordPerformaceData();
+	/*RecordPerformaceData();
 
 	delete m_camera;
 	delete m_model;
@@ -106,7 +106,7 @@ Renderer::~Renderer(void)	{
 	for (int i = 0; i < m_lights.size(); i++)
 	{
 		delete m_lights[i];
-	}
+	}*/
 
 	delete m_nft;
 }
@@ -237,11 +237,11 @@ Vector3 Renderer::RandomLightPosition(std::uniform_real_distribution<> dis, std:
 
 
 void Renderer::UpdateScene(float dt) {
-	m_camera->UpdateCamera(dt);
+	/*m_camera->UpdateCamera(dt);
 	viewMatrix = m_camera->BuildViewMatrix();
 	m_frustum->FromMatrix(projMatrix*viewMatrix);
 	UpdateLights(dt);
-	m_fps=CalculateFPS(dt);
+	m_fps=CalculateFPS(dt);*/
 }
 
 void Renderer::RenderScene()	{

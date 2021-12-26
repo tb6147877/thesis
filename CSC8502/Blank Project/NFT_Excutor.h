@@ -24,5 +24,6 @@ protected:
 	void InitFBO(const int width, const int height);
 	void GenerateScreenTexture(GLuint& tex, const int type);
 	GLuint LoadTextureFromFile(char const* path);
+	void SerializeTexture(char const* path);
 };
 

@@ -2,6 +2,7 @@
 #include "../nclgl/Shader.h"
 #include "../nclgl/Quad.h"
 #include <stb_image.h>
+#include <stb_image_write.h>
 
 NFT_Excutor::NFT_Excutor(const int width, const int height, const std::string& vertPath, const std::string& fragPath) :m_width{ width }, m_height{ height } {
 	InitFBO(width, height);
@@ -110,4 +111,20 @@ GLuint NFT_Excutor::LoadTextureFromFile(char const* path) {
 	}
 
 	return textureID;
+}
+
+
+void NFT_Excutor::SerializeTexture(char const* path) {
+	stbi_flip_vertically_on_write(true);
+	GLubyte* data = new GLubyte[(3 * m_width * m_height)];
+	memset(data, 0, 3 * m_width * m_height);
+
+	//glBindFramebuffer(GL_FRAMEBUFFER, m_resultFBO);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+	// Write the PNG image
+	int numOfComponents = 3; // RGB
+	int strideInBytes = m_width * 3;
+	stbi_write_png(path, m_width, m_height, 3, data, strideInBytes);
 }
