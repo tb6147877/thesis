@@ -14,6 +14,10 @@ TestNFT::~TestNFT() {
 
 
 void TestNFT::GenerateNFTs() {
+	std::cout << CommonTool::GetMd5("apple") << "\n";
+	std::cout << CommonTool::CalculateHash(std::string("apple")) << "\n";
+	return;
+
 	if (m_isCompleted)
 	{
 		return;

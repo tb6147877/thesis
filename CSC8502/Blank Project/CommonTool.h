@@ -1,0 +1,26 @@
+#pragma once
+
+#include <random>
+#include <ctime>
+#include <string>
+#include <unordered_map>
+#include "md5.h"
+
+static std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
+
+class CommonTool
+{
+public:
+	static int GetRamdom(int min, int max);
+
+	static bool IsHitProbability(const int num);
+
+	template<typename T>
+	static size_t CalculateHash(T target) {
+		std::size_t result = std::hash<T>{}(target);
+		return result;
+	}
+
+	static std::string GetMd5(const std::string& str);
+};
+

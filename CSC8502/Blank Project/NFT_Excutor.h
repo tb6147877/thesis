@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <string>
 
+#include "CommonTool.h"
+
 class Shader;
 class Quad;
 
