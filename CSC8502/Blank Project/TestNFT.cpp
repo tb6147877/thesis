@@ -14,9 +14,44 @@ TestNFT::~TestNFT() {
 
 
 void TestNFT::GenerateNFTs() {
-	std::cout << CommonTool::GetMd5("apple") << "\n";
-	std::cout << CommonTool::CalculateHash(std::string("apple")) << "\n";
+	if (m_isCompleted)
+	{
+		return;
+	}
+
+	std::vector<std::string> pngFiles;
+	std::vector<std::string> pngFilesName;
+	CommonTool::GetPngFiles("C:/Users/tb614/Desktop/resourses", pngFiles, pngFilesName);
+
+	for (int i = 0; i < pngFiles.size(); i++)
+	{
+		std::cout << pngFiles[i] << "\n";
+	}
+
+	std::cout << "******************************\n";
+
+	for (int i = 0; i < pngFilesName.size(); i++)
+	{
+		std::cout << pngFilesName[i] << "\n";
+	}
+
+	std::cout << "******************************\n";
+
+	m_isCompleted = true;
 	return;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	if (m_isCompleted)
 	{

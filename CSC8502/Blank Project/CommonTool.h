@@ -4,6 +4,8 @@
 #include <ctime>
 #include <string>
 #include <unordered_map>
+#include <io.h>
+#include <iostream>
 #include "md5.h"
 
 static std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
@@ -14,6 +16,8 @@ public:
 	static int GetRamdom(int min, int max);
 
 	static bool IsHitProbability(const int num);
+
+	static void GetPngFiles(const std::string& folderPath, std::vector<std::string>& filesWholePath, std::vector<std::string>& filesName);
 
 	template<typename T>
 	static size_t CalculateHash(T target) {
