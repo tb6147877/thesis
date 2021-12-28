@@ -8,6 +8,20 @@
 class Shader;
 class Quad;
 
+struct NFT_SourceFile_Data
+{
+	std::string Prefix{ "" };
+	std::string FilePath{ "" };
+	std::string FileName{ "" };
+};
+
+struct NFT_SourceFile_Cfg {
+	std::string Prefix{ "" };
+	std::vector<NFT_SourceFile_Data*> DataArr;
+
+	void InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName);
+};
+
 class NFT_Excutor
 {
 public:

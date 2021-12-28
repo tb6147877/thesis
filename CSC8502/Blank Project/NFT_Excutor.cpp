@@ -4,6 +4,11 @@
 #include <stb_image.h>
 #include <stb_image_write.h>
 
+void NFT_SourceFile_Cfg::InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName) {
+
+}
+
+
 NFT_Excutor::NFT_Excutor(const int width, const int height, const std::string& vertPath, const std::string& fragPath) :m_width{ width }, m_height{ height } {
 	InitFBO(width, height);
 	InitShader(vertPath, fragPath);
