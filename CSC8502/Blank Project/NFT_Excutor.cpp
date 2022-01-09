@@ -187,7 +187,7 @@ void NFT_Excutor::InitFilesCfg(const std::vector<std::pair<std::string, int>>& d
 bool NFT_Excutor::IsFileCodeRepeated(const std::string& fileCode) {
 	for (int i = 0; i < m_nft_results.size(); i++)
 	{
-		if (m_nft_results[i].FileCode==fileCode)
+		if (m_nft_results[i]->FileCode==fileCode)
 		{
 			return true;
 		}
@@ -196,14 +196,37 @@ bool NFT_Excutor::IsFileCodeRepeated(const std::string& fileCode) {
 	return false;
 }
 
+bool NFT_Excutor::IsNFTSame(const int diffNum, const std::vector<std::string>& flags) {
+	int result{ 0 };
+	for (int i = 0; i < m_nft_results.size(); i++)
+	{
+		result = 0;
+		for (int j = 0; j < m_nft_results[i]->FeatureFlags.size(); j++)
+		{
+			if (flags[j] == m_nft_results[i]->FeatureFlags[j])
+			{
+				result++;
+			}
+		}
+
+		if (result >= diffNum)
+		{
+			return true;
+		}
+	}
+
+	
+	return false;
+}
+
 void NFT_Excutor::RecordNFTResult(const std::string& folderPath) {
 	std::string temp{ "" };
 	for (size_t i = 0; i < m_nft_results.size(); i++)
 	{
-		temp += (std::to_string(m_nft_results[i].ID) + ",");
-		temp += (std::to_string(m_nft_results[i].FeatureNum) + ",");
-		temp += (m_nft_results[i].FileCode + ",");
-		temp += (m_nft_results[i].Hash + ",\n");
+		temp += (std::to_string(m_nft_results[i]->ID) + ",");
+		temp += (std::to_string(m_nft_results[i]->FeatureNum) + ",");
+		temp += (m_nft_results[i]->FileCode + ",");
+		temp += (m_nft_results[i]->Hash + ",\n");
 	}
 	FileOperator::writeFile(temp, folderPath + "log.csv");
 }

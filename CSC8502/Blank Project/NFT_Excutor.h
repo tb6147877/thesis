@@ -32,6 +32,7 @@ struct NFT_ResultData {
 	int FeatureNum{ 0 };
 	std::string FileCode{ "" };
 	std::string Hash{ "" };
+	std::vector<std::string> FeatureFlags;
 };
 
 class NFT_Excutor
@@ -51,7 +52,7 @@ protected:
 	std::vector<NFT_SourceFile_Cfg> m_file_cfgs;
 	int m_total_nft_num{ 0 };
 	std::vector<int> m_nft_serial_num;
-	std::vector<NFT_ResultData> m_nft_results;
+	std::vector<NFT_ResultData*> m_nft_results;
 	TextRender* m_textRender{nullptr};
 
 
@@ -62,6 +63,6 @@ protected:
 	void SerializeTexture(char const* path);
 	bool IsFileCodeRepeated(const std::string& fileCode);
 	void RecordNFTResult(const std::string& folderPath);
-
+	bool IsNFTSame(const int diffNum,const std::vector<std::string>& flags);
 };
 

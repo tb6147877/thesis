@@ -13,7 +13,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	std::vector<std::pair<std::string, int>> cfgs;
 	std::pair<std::string, int> bg{ "C:/Users/tb614/Desktop/resourses/resourses/bg",100 };
 	std::pair<std::string, int> ele1{ "C:/Users/tb614/Desktop/resourses/resourses/ele1",100 };
-	std::pair<std::string, int> ele2{ "C:/Users/tb614/Desktop/resourses/resourses/ele2",30 };
+	std::pair<std::string, int> ele2{ "C:/Users/tb614/Desktop/resourses/resourses/ele2",100 };
 	cfgs.push_back(bg);
 	cfgs.push_back(ele1);
 	cfgs.push_back(ele2);

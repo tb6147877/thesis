@@ -12,6 +12,7 @@ public:
 	void GenerateNFTs() override;
 
 private:
+	const int DIFFERENT_NUMBER_BIAS{ 3 };//这里的数字是指有几个元素不一样才能称之为元素不一样
 	GLuint m_bg, m_ele1, m_ele2;
 	bool m_isCompleted{ false };
 };
