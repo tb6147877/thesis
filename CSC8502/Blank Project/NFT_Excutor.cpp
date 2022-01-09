@@ -1,11 +1,19 @@
 #include "NFT_Excutor.h"
 #include "../nclgl/Shader.h"
 #include "../nclgl/Quad.h"
+#include "../nclgl/FileOperator.h"
 #include <stb_image.h>
 #include <stb_image_write.h>
 
-void NFT_SourceFile_Cfg::InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName) {
-
+void NFT_SourceFile_Cfg::InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName, const std::string& folderPath) {
+	for (int i = 0; i < filesPath.size(); i++)
+	{
+		NFT_SourceFile_Data* ptr = new NFT_SourceFile_Data();
+		ptr->FolderPath = folderPath;
+		ptr->FilePath = filesPath[i];
+		ptr->FileName= filesName[i];
+		DataArr.push_back(ptr);
+	}
 }
 
 
@@ -13,6 +21,7 @@ NFT_Excutor::NFT_Excutor(const int width, const int height, const std::string& v
 	InitFBO(width, height);
 	InitShader(vertPath, fragPath);
 	m_quad = new Quad();
+	m_textRender = new TextRender(width, height);
 }
 
 NFT_Excutor::~NFT_Excutor() {
@@ -26,6 +35,21 @@ NFT_Excutor::~NFT_Excutor() {
 	{
 		delete m_quad;
 		m_quad = nullptr;
+	}
+
+	for (int i = 0; i < m_file_cfgs.size(); i++)
+	{
+		for (int j = 0; j < m_file_cfgs[i].DataArr.size(); j++)
+		{
+			delete m_file_cfgs[i].DataArr[j];
+			m_file_cfgs[i].DataArr[j] = nullptr;
+		}
+	}
+
+	if (m_textRender!=nullptr)
+	{
+		delete m_textRender;
+		m_textRender = nullptr;
 	}
 }
 
@@ -132,4 +156,54 @@ void NFT_Excutor::SerializeTexture(char const* path) {
 	int numOfComponents = 3; // RGB
 	int strideInBytes = m_width * 3;
 	stbi_write_png(path, m_width, m_height, 3, data, strideInBytes);
+}
+
+void NFT_Excutor::InitFilesCfg(const std::vector<std::pair<std::string, int>>& data) {
+	m_total_nft_num = 1;
+	for (int i = 0; i < data.size(); i++)
+	{
+		NFT_SourceFile_Cfg cfg;
+		cfg.Probability = data[i].second;
+		cfg.FolderPath = data[i].first;
+
+		std::vector<std::string> filePath;
+		std::vector<std::string> fileName;
+		CommonTool::GetPngFiles(cfg.FolderPath, filePath, fileName);
+		cfg.InitDataArr(filePath, fileName, cfg.FolderPath);
+
+		m_file_cfgs.push_back(cfg);
+
+		m_total_nft_num *= filePath.size();
+	}
+
+	for (int i = 0; i < m_total_nft_num; i++)
+	{
+		m_nft_serial_num.push_back(i);
+	}
+
+	CommonTool::ShuffleContainer(m_nft_serial_num);
+}
+
+bool NFT_Excutor::IsFileCodeRepeated(const std::string& fileCode) {
+	for (int i = 0; i < m_nft_results.size(); i++)
+	{
+		if (m_nft_results[i].FileCode==fileCode)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void NFT_Excutor::RecordNFTResult(const std::string& folderPath) {
+	std::string temp{ "" };
+	for (size_t i = 0; i < m_nft_results.size(); i++)
+	{
+		temp += (std::to_string(m_nft_results[i].ID) + ",");
+		temp += (std::to_string(m_nft_results[i].FeatureNum) + ",");
+		temp += (m_nft_results[i].FileCode + ",");
+		temp += (m_nft_results[i].Hash + ",\n");
+	}
+	FileOperator::writeFile(temp, folderPath + "log.csv");
 }

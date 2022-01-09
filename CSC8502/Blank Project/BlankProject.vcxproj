@@ -68,20 +68,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>..\Third Party\;$(ProjectDir)..\;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\SOIL\$(Configuration)\;..\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Third Party\FreeType;..\Third Party\;$(ProjectDir)..\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\SOIL\$(Configuration)\;..\$(Platform)\$(Configuration)\;C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\FreeType_lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..\Third Party\;..\Third Party\As\include\assmip;$(ProjectDir)..\;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\SOIL\$(Configuration)\;..\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Third Party\FreeType;..\Third Party\;..\Third Party\As\include\assmip;$(ProjectDir)..\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\SOIL\$(Configuration)\;..\$(Platform)\$(Configuration)\;C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\FreeType_lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>..\Third Party\;$(ProjectDir)..\;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\SOIL\$(Configuration)\;..\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Third Party\FreeType;..\Third Party\;$(ProjectDir)..\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\SOIL\$(Configuration)\;..\$(Platform)\$(Configuration)\;C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\FreeType_lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>..\Third Party\;..\Third Party\As\include\assmip;$(ProjectDir)..\;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\SOIL\$(Configuration)\;..\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Third Party\FreeType;..\Third Party\;..\Third Party\As\include\assmip;$(ProjectDir)..\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\SOIL\$(Configuration)\;..\$(Platform)\$(Configuration)\;C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\FreeType_lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,7 +91,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>nclgl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nclgl.lib;assimp-vc141-mt.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -103,7 +103,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>assimp-vc141-mt.lib;nclgl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nclgl.lib;assimp-vc141-mt.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\assimp_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -122,7 +122,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>nclgl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nclgl.lib;assimp-vc141-mt.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -139,7 +139,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>assimp-vc141-mt.lib;nclgl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nclgl.lib;assimp-vc141-mt.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\tb614\Documents\ncl_projects\manual\ncl_thesis\CSC8502\Third Party\assimp_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -147,6 +147,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Awei_NFT.cpp" />
     <ClCompile Include="CommonTool.cpp" />
     <ClCompile Include="DeferredRenderingHelper.cpp" />
     <ClCompile Include="DepthPreHelper.cpp" />
@@ -160,8 +161,10 @@
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="stb_image_write.cpp" />
     <ClCompile Include="TestNFT.cpp" />
+    <ClCompile Include="TextRender.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Awei_NFT.h" />
     <ClInclude Include="CommonTool.h" />
     <ClInclude Include="DeferredRenderingHelper.h" />
     <ClInclude Include="DepthPreHelper.h" />
@@ -172,6 +175,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SelectActiveClusterHelper.h" />
     <ClInclude Include="TestNFT.h" />
+    <ClInclude Include="TextRender.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

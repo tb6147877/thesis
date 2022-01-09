@@ -3,23 +3,35 @@
 #include <glad/glad.h>
 #include <string>
 
+
+#include "TextRender.h"
 #include "CommonTool.h"
 
 class Shader;
 class Quad;
 
+//一个图片文件包含的所有信息
 struct NFT_SourceFile_Data
 {
-	std::string Prefix{ "" };
+	std::string FolderPath{ "" };
 	std::string FilePath{ "" };
 	std::string FileName{ "" };
 };
 
+//一个元素包含的所有信息
 struct NFT_SourceFile_Cfg {
-	std::string Prefix{ "" };
+	std::string FolderPath{ "" };
 	std::vector<NFT_SourceFile_Data*> DataArr;
+	int Probability{ 100 }; //?%
+	void InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName, const std::string& folderPath);
+};
 
-	void InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName);
+//一张成品NFT里面包含的所有信息
+struct NFT_ResultData {
+	int ID{ 0 };
+	int FeatureNum{ 0 };
+	std::string FileCode{ "" };
+	std::string Hash{ "" };
 };
 
 class NFT_Excutor
@@ -29,17 +41,27 @@ public:
 	virtual ~NFT_Excutor();
 
 	virtual void GenerateNFTs() = 0;
+	void InitFilesCfg(const std::vector<std::pair<std::string, int>>& data);
 
 protected:
 	int m_width, m_height;
 	Shader* m_nft_shader;
 	GLuint m_resultFBO, m_resultTex;
 	Quad* m_quad;
+	std::vector<NFT_SourceFile_Cfg> m_file_cfgs;
+	int m_total_nft_num{ 0 };
+	std::vector<int> m_nft_serial_num;
+	std::vector<NFT_ResultData> m_nft_results;
+	TextRender* m_textRender{nullptr};
+
 
 	void InitShader(const std::string& vertPath, const std::string& fragPath);
 	void InitFBO(const int width, const int height);
 	void GenerateScreenTexture(GLuint& tex, const int type);
 	GLuint LoadTextureFromFile(char const* path);
 	void SerializeTexture(char const* path);
+	bool IsFileCodeRepeated(const std::string& fileCode);
+	void RecordNFTResult(const std::string& folderPath);
+
 };
 

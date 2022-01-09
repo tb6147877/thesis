@@ -9,8 +9,16 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	//nft reigon=========================================
 	std::cout << width << "," << height<<"\n";
-	//m_nft_simple_shader = new Shader("NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
 	m_nft = new TestNFT(1024, 1024, "NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
+	std::vector<std::pair<std::string, int>> cfgs;
+	std::pair<std::string, int> bg{ "C:/Users/tb614/Desktop/resourses/resourses/bg",100 };
+	std::pair<std::string, int> ele1{ "C:/Users/tb614/Desktop/resourses/resourses/ele1",100 };
+	std::pair<std::string, int> ele2{ "C:/Users/tb614/Desktop/resourses/resourses/ele2",30 };
+	cfgs.push_back(bg);
+	cfgs.push_back(ele1);
+	cfgs.push_back(ele2);
+	m_nft->InitFilesCfg(cfgs);
+	//m_nft = new Awei_NFT(1024, 1024, "NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
 
 	//===============================================
 

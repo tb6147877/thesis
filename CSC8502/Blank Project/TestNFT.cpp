@@ -14,62 +14,36 @@ TestNFT::~TestNFT() {
 
 
 void TestNFT::GenerateNFTs() {
-	if (m_isCompleted)
+
+	/*if (m_textRender!=nullptr)
 	{
-		return;
+		m_textRender->RenderText("hello world", 200, 200,0.3, Vector3{ 1.0f,1.0f,1.0f });
 	}
-
-	std::vector<std::string> pngFiles;
-	std::vector<std::string> pngFilesName;
-	CommonTool::GetPngFiles("C:/Users/tb614/Desktop/resourses", pngFiles, pngFilesName);
-
-	for (int i = 0; i < pngFiles.size(); i++)
-	{
-		std::cout << pngFiles[i] << "\n";
-	}
-
-	std::cout << "******************************\n";
-
-	for (int i = 0; i < pngFilesName.size(); i++)
-	{
-		std::cout << pngFilesName[i] << "\n";
-	}
-
-	std::cout << "******************************\n";
-
-	m_isCompleted = true;
-	return;
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return;*/
 
 	if (m_isCompleted)
 	{
 		return;
 	}
 
-	std::string path{"C:/Users/tb614/Desktop/tests/"};
+	std::string path{"C:/Users/tb614/Desktop/tests1/"};
 	int counter = 0;
 
-	for (int i = 0; i < m_bg_files.size(); i++)
+	for (int i = 0; i < m_file_cfgs[0].DataArr.size(); i++)
 	{
-		m_bg = LoadTextureFromFile(m_bg_files[i].c_str());
-		for (int j = 0; j < m_ele1_files.size(); j++)
+		m_bg = LoadTextureFromFile(m_file_cfgs[0].DataArr[i]->FilePath.c_str());
+
+		for (int j = 0; j < m_file_cfgs[1].DataArr.size(); j++)
 		{
-			m_ele1 = LoadTextureFromFile(m_ele1_files[j].c_str());
-			for (int k = 0; k < m_ele2_files.size(); k++)
+			m_ele1 = LoadTextureFromFile(m_file_cfgs[1].DataArr[j]->FilePath.c_str());
+
+			for (int k = 0; k < m_file_cfgs[2].DataArr.size(); k++)
 			{
-				m_ele2 = LoadTextureFromFile(m_ele2_files[k].c_str());
+				m_ele2 = LoadTextureFromFile(m_file_cfgs[2].DataArr[k]->FilePath.c_str());
+
+				int featureNum{ 0 };
+				NFT_ResultData result;
+				std::string fileCode{ "" };
 
 				glClear(GL_COLOR_BUFFER_BIT);
 
@@ -79,30 +53,58 @@ void TestNFT::GenerateNFTs() {
 
 				glUseProgram(m_nft_shader->GetProgram());
 
+				if (CommonTool::IsHitProbability(m_file_cfgs[0].Probability))
+				{
+					featureNum++;
+					fileCode.append(m_file_cfgs[0].DataArr[i]->FileName);
+					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, m_bg);
+					m_quad->Draw();
+				}
 
-				glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, m_bg);
-				m_quad->Draw();
+				if (CommonTool::IsHitProbability(m_file_cfgs[1].Probability))
+				{
+					featureNum++;
+					fileCode.append(m_file_cfgs[1].DataArr[j]->FileName);
+					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, m_ele1);
+					m_quad->Draw();
+				}
+				
+				if (CommonTool::IsHitProbability(m_file_cfgs[2].Probability))
+				{
+					featureNum++;
+					fileCode.append(m_file_cfgs[2].DataArr[k]->FileName);
+					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, m_ele2);
+					m_quad->Draw();
+				}
 
-				glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, m_ele1);
-				m_quad->Draw();
+				if (IsFileCodeRepeated(fileCode))
+				{
+					continue;
+				}
 
-				glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, m_ele2);
-				m_quad->Draw();
+				result.FeatureNum = featureNum;
+				result.ID = m_nft_serial_num[counter];
+				result.FileCode = fileCode;
+				result.Hash = CommonTool::GetMd5(fileCode);
+				m_nft_results.push_back(result);
 
 				std::string temp = path;
-				temp.append(std::to_string(counter)).append("_r.png");
+				temp.append(std::to_string(m_nft_serial_num[counter])).append("_").append(std::to_string(featureNum)).append("_").append(result.Hash).append(".png");
+
 
 				SerializeTexture(temp.c_str());
 				counter++;
 			}
 		}
 	}
+
+	RecordNFTResult(path);
 
 	m_isCompleted = true;
 }

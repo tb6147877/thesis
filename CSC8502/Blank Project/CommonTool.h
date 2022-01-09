@@ -25,6 +25,21 @@ public:
 		return result;
 	}
 
+	static auto get_URBG()
+	{
+		std::random_device rd;
+		// 使用random_device生成seed
+		std::mt19937 g(rd());
+
+		return g;
+	}
+
+	template <typename T>
+	static void ShuffleContainer(std::vector<T>& container)
+	{
+		std::shuffle(container.begin(), container.end(), get_URBG());
+	}
+
 	static std::string GetMd5(const std::string& str);
 };
 

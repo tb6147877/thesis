@@ -44,6 +44,7 @@ static inline float DegToRad(const float rad)	{
 #define TEXTUREDIR  "../Textures/"
 #define SOUNDSDIR	"../Sounds/"
 #define MODELSDIR	"../Models/"
+#define FONTSDIR	"../Fonts/"
 #endif
 
 

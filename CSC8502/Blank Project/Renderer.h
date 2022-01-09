@@ -18,6 +18,7 @@
 #include "MSAAHelper.h"
 
 #include "TestNFT.h"
+#include "Awei_NFT.h"
 
 struct PointLight
 {
@@ -167,7 +168,7 @@ protected:
 	void ClusterCalculateLighting();
 
 	//nft reigon
-	TestNFT* m_nft{ nullptr };
+	NFT_Excutor* m_nft{ nullptr };
 
 	
 };
