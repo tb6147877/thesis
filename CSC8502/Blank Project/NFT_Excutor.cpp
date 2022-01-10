@@ -4,6 +4,7 @@
 #include "../nclgl/FileOperator.h"
 #include <stb_image.h>
 #include <stb_image_write.h>
+#include <algorithm>
 
 void NFT_SourceFile_Cfg::InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName, const std::string& folderPath) {
 	for (int i = 0; i < filesPath.size(); i++)
@@ -219,8 +220,13 @@ bool NFT_Excutor::IsNFTSame(const int diffNum, const std::vector<std::string>& f
 	return false;
 }
 
+bool SortFunc(NFT_ResultData* a, NFT_ResultData* b) {
+	return (a->ID < b->ID);
+}
+
 void NFT_Excutor::RecordNFTResult(const std::string& folderPath) {
 	std::string temp{ "" };
+	std::sort(m_nft_results.begin(), m_nft_results.end(),SortFunc);
 	for (size_t i = 0; i < m_nft_results.size(); i++)
 	{
 		temp += (std::to_string(m_nft_results[i]->ID) + ",");

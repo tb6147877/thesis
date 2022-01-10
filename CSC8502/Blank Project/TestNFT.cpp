@@ -14,13 +14,6 @@ TestNFT::~TestNFT() {
 
 
 void TestNFT::GenerateNFTs() {
-
-	/*if (m_textRender!=nullptr)
-	{
-		m_textRender->RenderText("hello world", 200, 200,0.3, Vector3{ 1.0f,1.0f,1.0f });
-	}
-	return;*/
-
 	if (m_isCompleted)
 	{
 		return;
@@ -45,6 +38,11 @@ void TestNFT::GenerateNFTs() {
 				NFT_ResultData* result=new NFT_ResultData;
 				std::string fileCode{ "" };
 
+				bool is_bg_draw{ false };
+				bool is_ele1_draw{ false };
+				bool is_ele2_draw{ false };
+
+
 				glClear(GL_COLOR_BUFFER_BIT);
 
 				glDisable(GL_DEPTH_TEST);
@@ -58,10 +56,7 @@ void TestNFT::GenerateNFTs() {
 					result->FeatureFlags.push_back(m_file_cfgs[0].DataArr[i]->FileName);
 					featureNum++;
 					fileCode.append(m_file_cfgs[0].DataArr[i]->FileName);
-					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, m_bg);
-					m_quad->Draw();
+					is_bg_draw = true;
 				}
 				else {
 					result->FeatureFlags.push_back("");
@@ -72,10 +67,7 @@ void TestNFT::GenerateNFTs() {
 					result->FeatureFlags.push_back(m_file_cfgs[1].DataArr[j]->FileName);
 					featureNum++;
 					fileCode.append(m_file_cfgs[1].DataArr[j]->FileName);
-					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, m_ele1);
-					m_quad->Draw();
+					is_ele1_draw = true;
 				}
 				else {
 					result->FeatureFlags.push_back("");
@@ -86,25 +78,47 @@ void TestNFT::GenerateNFTs() {
 					result->FeatureFlags.push_back(m_file_cfgs[2].DataArr[k]->FileName);
 					featureNum++;
 					fileCode.append(m_file_cfgs[2].DataArr[k]->FileName);
-					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, m_ele2);
-					m_quad->Draw();
+					is_ele2_draw = true;
 				}
 				else {
 					result->FeatureFlags.push_back("");
 				}
 
 
-
+				//这个判断是为了防止有元素是几率渲染的情况下，当整个NFT制作是完全排列组合方式时，在一个这个几率出现的for循环中有多个NFT该元素没有随机上而造成NFT重复，这一判断解决了这个问题
 				if (IsFileCodeRepeated(fileCode))
 				{
 					continue;
 				}
 
-				if (IsNFTSame(DIFFERENT_NUMBER_BIAS, result->FeatureFlags))
+				//这个判断是为了说明几个元素不同我们才认为NFT不同，当整个NFT制作是完全排列组合方式时，一个元素的不同我们就认为这个NFT与其他NFT不同，
+				//但是我们也可以通过这个判断指定比如两个元素不同，NFT才不同
+				/*if (IsNFTSame(DIFFERENT_NUMBER_BIAS, result->FeatureFlags))
 				{
 					continue;
+				}*/
+
+				//等全部过滤条件判断完再draw
+				if (is_bg_draw)
+				{
+					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, m_bg);
+					m_quad->Draw();
+				}
+				if (is_ele1_draw)
+				{
+					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, m_ele1);
+					m_quad->Draw();
+				}
+				if (is_ele2_draw)
+				{
+					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, m_ele2);
+					m_quad->Draw();
 				}
 
 				result->FeatureNum = featureNum;

@@ -15,10 +15,10 @@ struct NFT_SourceFile_Data
 {
 	std::string FolderPath{ "" };
 	std::string FilePath{ "" };
-	std::string FileName{ "" };
+	std::string FileName{ "" };//todo:一个元素多种颜色的算法，尝试只通过将这个字段变成一个数组然后轮到这个元素时在这个数组里随机一个元素实现这个算法
 };
 
-//一个元素包含的所有信息
+//一个元素图层包含的所有信息
 struct NFT_SourceFile_Cfg {
 	std::string FolderPath{ "" };
 	std::vector<NFT_SourceFile_Data*> DataArr;
@@ -49,10 +49,10 @@ protected:
 	Shader* m_nft_shader;
 	GLuint m_resultFBO, m_resultTex;
 	Quad* m_quad;
-	std::vector<NFT_SourceFile_Cfg> m_file_cfgs;
+	std::vector<NFT_SourceFile_Cfg> m_file_cfgs;//有多个元素图层
 	int m_total_nft_num{ 0 };
 	std::vector<int> m_nft_serial_num;
-	std::vector<NFT_ResultData*> m_nft_results;
+	std::vector<NFT_ResultData*> m_nft_results;//输出NFT的结果
 	TextRender* m_textRender{nullptr};
 
 
