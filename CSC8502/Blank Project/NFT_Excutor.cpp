@@ -5,15 +5,35 @@
 #include <stb_image.h>
 #include <stb_image_write.h>
 #include <algorithm>
+#include <map>
+
 
 void NFT_SourceFile_Cfg::InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName, const std::string& folderPath) {
+	std::map<char, NFT_SourceFile_Data*> map;
+
 	for (int i = 0; i < filesPath.size(); i++)
 	{
-		NFT_SourceFile_Data* ptr = new NFT_SourceFile_Data();
-		ptr->FolderPath = folderPath;
-		ptr->FilePath = filesPath[i];
-		ptr->FileName= filesName[i];
-		DataArr.push_back(ptr);
+		char c = filesName[i][0];
+		auto iter = std::find_if(map.begin(), map.end(), [&](const std::pair<char, NFT_SourceFile_Data*> item)->bool {
+			return (item.first==c);
+			});
+		if (iter!=map.end())
+		{
+			map[c]->FileNameArr.push_back(filesName[i]);
+			map[c]->FilePathArr.push_back(filesPath[i]);
+		}
+		else {
+			NFT_SourceFile_Data* ptr = new NFT_SourceFile_Data();
+			ptr->FolderPath = folderPath;
+			ptr->FileNameArr.push_back(filesName[i]);
+			ptr->FilePathArr.push_back(filesPath[i]);
+			map.insert(std::pair<char, NFT_SourceFile_Data*>(c, ptr));
+		}
+	}
+
+	for (const auto& item : map)
+	{
+		DataArr.push_back(item.second);
 	}
 }
 
@@ -174,7 +194,12 @@ void NFT_Excutor::InitFilesCfg(const std::vector<std::pair<std::string, int>>& d
 
 		m_file_cfgs.push_back(cfg);
 
-		m_total_nft_num *= filePath.size();
+		//m_total_nft_num *= filePath.size();
+	}
+
+	for (int i = 0; i < m_file_cfgs.size(); i++)
+	{
+		m_total_nft_num *= m_file_cfgs[i].DataArr.size();
 	}
 
 	for (int i = 0; i < m_total_nft_num; i++)
@@ -235,4 +260,16 @@ void NFT_Excutor::RecordNFTResult(const std::string& folderPath) {
 		temp += (m_nft_results[i]->Hash + ",\n");
 	}
 	FileOperator::writeFile(temp, folderPath + "log.csv");
+}
+
+int NFT_Excutor::SelectOneColor(const std::vector<std::string>& arr) {
+	if (arr.size()==0)
+	{
+		std::cout << "ÔªËØÍ¼Æ¬ÊýÁ¿´íÎó\n";
+		return -1;
+	}
+	int min = 0;
+	int max = arr.size() - 1;
+	int num = CommonTool::GetRamdom(min, max);
+	return num;
 }

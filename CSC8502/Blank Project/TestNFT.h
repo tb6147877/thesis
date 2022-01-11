@@ -13,7 +13,7 @@ public:
 
 private:
 	const int DIFFERENT_NUMBER_BIAS{ 3 };//这里的数字是指有几个元素不一样才能称之为元素不一样
-	GLuint m_bg, m_ele1, m_ele2;
+	GLuint m_bg, m_ele1, m_ele2, m_ele3, m_ele4;
 	bool m_isCompleted{ false };
 };
 

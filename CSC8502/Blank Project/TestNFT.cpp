@@ -19,122 +19,202 @@ void TestNFT::GenerateNFTs() {
 		return;
 	}
 
-	std::string path{"C:/Users/tb614/Desktop/tests1/"};
+	std::string path{"C:/Users/tb614/Desktop/awei_test_result/"};
 	int counter = 0;
+
+	std::string bg_name{ "" };
+	std::string ele1_name{ "" };
+	std::string ele2_name{ "" };
+	std::string ele3_name{ "" };
+	std::string ele4_name{ "" };
 
 	for (int i = 0; i < m_file_cfgs[0].DataArr.size(); i++)
 	{
-		m_bg = LoadTextureFromFile(m_file_cfgs[0].DataArr[i]->FilePath.c_str());
+		//m_bg = LoadTextureFromFile(m_file_cfgs[0].DataArr[i]->FilePath.c_str());
+		int num = SelectOneColor(m_file_cfgs[0].DataArr[i]->FilePathArr);
+		std::string tempPath = m_file_cfgs[0].DataArr[i]->FilePathArr[num];
+		m_bg = LoadTextureFromFile(tempPath.c_str());
+		bg_name = m_file_cfgs[0].DataArr[i]->FileNameArr[num];
 
 		for (int j = 0; j < m_file_cfgs[1].DataArr.size(); j++)
 		{
-			m_ele1 = LoadTextureFromFile(m_file_cfgs[1].DataArr[j]->FilePath.c_str());
+			//m_ele1 = LoadTextureFromFile(m_file_cfgs[1].DataArr[j]->FilePath.c_str());
+			num = SelectOneColor(m_file_cfgs[1].DataArr[j]->FilePathArr);
+			tempPath = m_file_cfgs[1].DataArr[j]->FilePathArr[num];
+			m_ele1 = LoadTextureFromFile(tempPath.c_str());
+			ele1_name = m_file_cfgs[1].DataArr[j]->FileNameArr[num];
 
 			for (int k = 0; k < m_file_cfgs[2].DataArr.size(); k++)
 			{
-				m_ele2 = LoadTextureFromFile(m_file_cfgs[2].DataArr[k]->FilePath.c_str());
+				//m_ele2 = LoadTextureFromFile(m_file_cfgs[2].DataArr[k]->FilePath.c_str());
+				num = SelectOneColor(m_file_cfgs[2].DataArr[k]->FilePathArr);
+				tempPath = m_file_cfgs[2].DataArr[k]->FilePathArr[num];
+				m_ele2 = LoadTextureFromFile(tempPath.c_str());
+				ele2_name = m_file_cfgs[2].DataArr[k]->FileNameArr[num];
 
-				int featureNum{ 0 };
-				NFT_ResultData* result=new NFT_ResultData;
-				std::string fileCode{ "" };
-
-				bool is_bg_draw{ false };
-				bool is_ele1_draw{ false };
-				bool is_ele2_draw{ false };
-
-
-				glClear(GL_COLOR_BUFFER_BIT);
-
-				glDisable(GL_DEPTH_TEST);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-				glUseProgram(m_nft_shader->GetProgram());
-
-				if (CommonTool::IsHitProbability(m_file_cfgs[0].Probability))
+				for (int m = 0; m < m_file_cfgs[3].DataArr.size(); m++)
 				{
-					result->FeatureFlags.push_back(m_file_cfgs[0].DataArr[i]->FileName);
-					featureNum++;
-					fileCode.append(m_file_cfgs[0].DataArr[i]->FileName);
-					is_bg_draw = true;
-				}
-				else {
-					result->FeatureFlags.push_back("");
+					//m_ele3 = LoadTextureFromFile(SelectOneColor(m_file_cfgs[3].DataArr[m]->FilePathArr).c_str());
+					num = SelectOneColor(m_file_cfgs[3].DataArr[m]->FilePathArr);
+					tempPath = m_file_cfgs[3].DataArr[m]->FilePathArr[num];
+					m_ele3 = LoadTextureFromFile(tempPath.c_str());
+					ele3_name = m_file_cfgs[3].DataArr[m]->FileNameArr[num];
+
+					for (int n = 0; n < m_file_cfgs[4].DataArr.size(); n++)
+					{
+						//m_ele4 = LoadTextureFromFile(SelectOneColor(m_file_cfgs[4].DataArr[n]->FilePathArr).c_str());
+						num = SelectOneColor(m_file_cfgs[4].DataArr[n]->FilePathArr);
+						tempPath = m_file_cfgs[4].DataArr[n]->FilePathArr[num];
+						m_ele4 = LoadTextureFromFile(tempPath.c_str());
+						ele4_name = m_file_cfgs[4].DataArr[n]->FileNameArr[num];
+
+
+						//===============================================
+						int featureNum{ 0 };
+						NFT_ResultData* result = new NFT_ResultData;
+						std::string fileCode{ "" };
+
+						bool is_bg_draw{ false };
+						bool is_ele1_draw{ false };
+						bool is_ele2_draw{ false };
+						bool is_ele3_draw{ false };
+						bool is_ele4_draw{ false };
+
+
+						glClear(GL_COLOR_BUFFER_BIT);
+
+						glDisable(GL_DEPTH_TEST);
+						glEnable(GL_BLEND);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+						glUseProgram(m_nft_shader->GetProgram());
+
+						if (CommonTool::IsHitProbability(m_file_cfgs[0].Probability))
+						{
+							//result->FeatureFlags.push_back(m_file_cfgs[0].DataArr[i]->FileName);
+							result->FeatureFlags.push_back(bg_name);
+							featureNum++;
+							fileCode.append(bg_name);
+							is_bg_draw = true;
+						}
+						else {
+							result->FeatureFlags.push_back("");
+						}
+
+						if (CommonTool::IsHitProbability(m_file_cfgs[1].Probability))
+						{
+							//result->FeatureFlags.push_back(m_file_cfgs[1].DataArr[j]->FileName);
+							result->FeatureFlags.push_back(ele1_name);
+							featureNum++;
+							fileCode.append(ele1_name);
+							is_ele1_draw = true;
+						}
+						else {
+							result->FeatureFlags.push_back("");
+						}
+
+						if (CommonTool::IsHitProbability(m_file_cfgs[2].Probability))
+						{
+							result->FeatureFlags.push_back(ele2_name);
+							featureNum++;
+							fileCode.append(ele2_name);
+							is_ele2_draw = true;
+						}
+						else {
+							result->FeatureFlags.push_back("");
+						}
+
+						if (CommonTool::IsHitProbability(m_file_cfgs[3].Probability))
+						{
+							result->FeatureFlags.push_back(ele3_name);
+							featureNum++;
+							fileCode.append(ele3_name);
+							is_ele3_draw = true;
+						}
+						else {
+							result->FeatureFlags.push_back("");
+						}
+
+						if (CommonTool::IsHitProbability(m_file_cfgs[4].Probability))
+						{
+							result->FeatureFlags.push_back(ele4_name);
+							featureNum++;
+							fileCode.append(ele4_name);
+							is_ele4_draw = true;
+						}
+						else {
+							result->FeatureFlags.push_back("");
+						}
+
+
+						//这个判断是为了防止有元素是几率渲染的情况下，当整个NFT制作是完全排列组合方式时，在一个这个几率出现的for循环中有多个NFT该元素没有随机上而造成NFT重复，这一判断解决了这个问题
+						if (IsFileCodeRepeated(fileCode))
+						{
+							continue;
+						}
+
+						//这个判断是为了说明几个元素不同我们才认为NFT不同，当整个NFT制作是完全排列组合方式时，一个元素的不同我们就认为这个NFT与其他NFT不同，
+						//但是我们也可以通过这个判断指定比如两个元素不同，NFT才不同
+						/*if (IsNFTSame(DIFFERENT_NUMBER_BIAS, result->FeatureFlags))
+						{
+							continue;
+						}*/
+
+						//等全部过滤条件判断完再draw
+						if (is_bg_draw)
+						{
+							glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, m_bg);
+							m_quad->Draw();
+						}
+						if (is_ele1_draw)
+						{
+							glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, m_ele1);
+							m_quad->Draw();
+						}
+						if (is_ele2_draw)
+						{
+							glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, m_ele2);
+							m_quad->Draw();
+						}
+						if (is_ele3_draw)
+						{
+							glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, m_ele3);
+							m_quad->Draw();
+						}
+						if (is_ele4_draw)
+						{
+							glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, m_ele4);
+							m_quad->Draw();
+						}
+
+						result->FeatureNum = featureNum;
+						result->ID = m_nft_serial_num[counter];
+						result->FileCode = fileCode;
+						result->Hash = CommonTool::GetMd5(fileCode);
+						m_nft_results.push_back(result);
+
+						//m_textRender->RenderText(result->Hash, 200, 200, 0.2, Vector3{ 1.0f,1.0f,1.0f });
+
+						std::string temp = path;
+						temp.append(std::to_string(m_nft_serial_num[counter])).append("_").append(std::to_string(featureNum)).append("_").append(result->Hash).append(".png");
+
+
+						SerializeTexture(temp.c_str());
+						counter++;
+					}
 				}
 
-				if (CommonTool::IsHitProbability(m_file_cfgs[1].Probability))
-				{
-					result->FeatureFlags.push_back(m_file_cfgs[1].DataArr[j]->FileName);
-					featureNum++;
-					fileCode.append(m_file_cfgs[1].DataArr[j]->FileName);
-					is_ele1_draw = true;
-				}
-				else {
-					result->FeatureFlags.push_back("");
-				}
 				
-				if (CommonTool::IsHitProbability(m_file_cfgs[2].Probability))
-				{
-					result->FeatureFlags.push_back(m_file_cfgs[2].DataArr[k]->FileName);
-					featureNum++;
-					fileCode.append(m_file_cfgs[2].DataArr[k]->FileName);
-					is_ele2_draw = true;
-				}
-				else {
-					result->FeatureFlags.push_back("");
-				}
-
-
-				//这个判断是为了防止有元素是几率渲染的情况下，当整个NFT制作是完全排列组合方式时，在一个这个几率出现的for循环中有多个NFT该元素没有随机上而造成NFT重复，这一判断解决了这个问题
-				if (IsFileCodeRepeated(fileCode))
-				{
-					continue;
-				}
-
-				//这个判断是为了说明几个元素不同我们才认为NFT不同，当整个NFT制作是完全排列组合方式时，一个元素的不同我们就认为这个NFT与其他NFT不同，
-				//但是我们也可以通过这个判断指定比如两个元素不同，NFT才不同
-				/*if (IsNFTSame(DIFFERENT_NUMBER_BIAS, result->FeatureFlags))
-				{
-					continue;
-				}*/
-
-				//等全部过滤条件判断完再draw
-				if (is_bg_draw)
-				{
-					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, m_bg);
-					m_quad->Draw();
-				}
-				if (is_ele1_draw)
-				{
-					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, m_ele1);
-					m_quad->Draw();
-				}
-				if (is_ele2_draw)
-				{
-					glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, m_ele2);
-					m_quad->Draw();
-				}
-
-				result->FeatureNum = featureNum;
-				result->ID = m_nft_serial_num[counter];
-				result->FileCode = fileCode;
-				result->Hash = CommonTool::GetMd5(fileCode);
-				m_nft_results.push_back(result);
-
-				//m_textRender->RenderText(result->Hash, 200, 200, 0.2, Vector3{ 1.0f,1.0f,1.0f });
-
-				std::string temp = path;
-				temp.append(std::to_string(m_nft_serial_num[counter])).append("_").append(std::to_string(featureNum)).append("_").append(result->Hash).append(".png");
-
-
-				SerializeTexture(temp.c_str());
-				counter++;
 			}
 		}
 	}

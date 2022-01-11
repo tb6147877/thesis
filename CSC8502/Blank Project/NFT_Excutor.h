@@ -14,8 +14,10 @@ class Quad;
 struct NFT_SourceFile_Data
 {
 	std::string FolderPath{ "" };
-	std::string FilePath{ "" };
-	std::string FileName{ "" };//todo:一个元素多种颜色的算法，尝试只通过将这个字段变成一个数组然后轮到这个元素时在这个数组里随机一个元素实现这个算法
+	std::string FilePath{ "" };//to be delete
+	std::string FileName{ "" };//to be delete
+	std::vector<std::string> FilePathArr;
+	std::vector<std::string> FileNameArr;
 };
 
 //一个元素图层包含的所有信息
@@ -64,5 +66,6 @@ protected:
 	bool IsFileCodeRepeated(const std::string& fileCode);
 	void RecordNFTResult(const std::string& folderPath);
 	bool IsNFTSame(const int diffNum,const std::vector<std::string>& flags);
+	int SelectOneColor(const std::vector<std::string>& arr);
 };
 

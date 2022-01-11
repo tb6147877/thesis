@@ -13,6 +13,7 @@ static std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(n
 class CommonTool
 {
 public:
+	//contain a and b
 	static int GetRamdom(int min, int max);
 
 	static bool IsHitProbability(const int num);

@@ -11,12 +11,23 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	std::cout << width << "," << height<<"\n";
 	m_nft = new TestNFT(1024, 1024, "NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
 	std::vector<std::pair<std::string, int>> cfgs;
-	std::pair<std::string, int> bg{ "C:/Users/tb614/Desktop/resourses/resourses/bg",100 };
+	/*std::pair<std::string, int> bg{ "C:/Users/tb614/Desktop/resourses/resourses/bg",100 };
 	std::pair<std::string, int> ele1{ "C:/Users/tb614/Desktop/resourses/resourses/ele1",100 };
 	std::pair<std::string, int> ele2{ "C:/Users/tb614/Desktop/resourses/resourses/ele2",100 };
 	cfgs.push_back(bg);
 	cfgs.push_back(ele1);
+	cfgs.push_back(ele2);*/
+
+	std::pair<std::string, int> bg{ "C:/Users/tb614/Desktop/awei_test/bg",100 };
+	std::pair<std::string, int> ele1{ "C:/Users/tb614/Desktop/awei_test/ele1",100 };
+	std::pair<std::string, int> ele2{ "C:/Users/tb614/Desktop/awei_test/ele2",100 };
+	std::pair<std::string, int> ele3{ "C:/Users/tb614/Desktop/awei_test/ele3",100 };
+	std::pair<std::string, int> ele4{ "C:/Users/tb614/Desktop/awei_test/ele4",100 };
+	cfgs.push_back(bg);
+	cfgs.push_back(ele1);
 	cfgs.push_back(ele2);
+	cfgs.push_back(ele3);
+	cfgs.push_back(ele4);
 	m_nft->InitFilesCfg(cfgs);
 	//m_nft = new Awei_NFT(1024, 1024, "NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
 
