@@ -23,6 +23,13 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	std::pair<std::string, int> ele2{ "C:/Users/tb614/Desktop/awei_test/ele2",100 };
 	std::pair<std::string, int> ele3{ "C:/Users/tb614/Desktop/awei_test/ele3",100 };
 	std::pair<std::string, int> ele4{ "C:/Users/tb614/Desktop/awei_test/ele4",100 };
+
+	/*std::pair<std::string, int> bg{ "C:/Users/tb614/Desktop/Awei_First/resource/bg",100 };
+	std::pair<std::string, int> ele1{ "C:/Users/tb614/Desktop/Awei_First/resource/ele1",100 };
+	std::pair<std::string, int> ele2{ "C:/Users/tb614/Desktop/Awei_First/resource/ele2",100 };
+	std::pair<std::string, int> ele3{ "C:/Users/tb614/Desktop/Awei_First/resource/ele3",100 };
+	std::pair<std::string, int> ele4{ "C:/Users/tb614/Desktop/Awei_First/resource/ele4",100 };*/
+
 	cfgs.push_back(bg);
 	cfgs.push_back(ele1);
 	cfgs.push_back(ele2);

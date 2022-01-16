@@ -19,7 +19,8 @@ void TestNFT::GenerateNFTs() {
 		return;
 	}
 
-	std::string path{"C:/Users/tb614/Desktop/awei_test_result/"};
+	std::string path{ "C:/Users/tb614/Desktop/awei_test_result/" };
+	//std::string path{"C:/Users/tb614/Desktop/Awei_First/result_raw/"};
 	int counter = 0;
 
 	std::string bg_name{ "" };
@@ -30,7 +31,6 @@ void TestNFT::GenerateNFTs() {
 
 	for (int i = 0; i < m_file_cfgs[0].DataArr.size(); i++)
 	{
-		//m_bg = LoadTextureFromFile(m_file_cfgs[0].DataArr[i]->FilePath.c_str());
 		int num = SelectOneColor(m_file_cfgs[0].DataArr[i]->FilePathArr);
 		std::string tempPath = m_file_cfgs[0].DataArr[i]->FilePathArr[num];
 		m_bg = LoadTextureFromFile(tempPath.c_str());
@@ -38,7 +38,6 @@ void TestNFT::GenerateNFTs() {
 
 		for (int j = 0; j < m_file_cfgs[1].DataArr.size(); j++)
 		{
-			//m_ele1 = LoadTextureFromFile(m_file_cfgs[1].DataArr[j]->FilePath.c_str());
 			num = SelectOneColor(m_file_cfgs[1].DataArr[j]->FilePathArr);
 			tempPath = m_file_cfgs[1].DataArr[j]->FilePathArr[num];
 			m_ele1 = LoadTextureFromFile(tempPath.c_str());
@@ -46,7 +45,6 @@ void TestNFT::GenerateNFTs() {
 
 			for (int k = 0; k < m_file_cfgs[2].DataArr.size(); k++)
 			{
-				//m_ele2 = LoadTextureFromFile(m_file_cfgs[2].DataArr[k]->FilePath.c_str());
 				num = SelectOneColor(m_file_cfgs[2].DataArr[k]->FilePathArr);
 				tempPath = m_file_cfgs[2].DataArr[k]->FilePathArr[num];
 				m_ele2 = LoadTextureFromFile(tempPath.c_str());
@@ -54,7 +52,6 @@ void TestNFT::GenerateNFTs() {
 
 				for (int m = 0; m < m_file_cfgs[3].DataArr.size(); m++)
 				{
-					//m_ele3 = LoadTextureFromFile(SelectOneColor(m_file_cfgs[3].DataArr[m]->FilePathArr).c_str());
 					num = SelectOneColor(m_file_cfgs[3].DataArr[m]->FilePathArr);
 					tempPath = m_file_cfgs[3].DataArr[m]->FilePathArr[num];
 					m_ele3 = LoadTextureFromFile(tempPath.c_str());
@@ -62,7 +59,6 @@ void TestNFT::GenerateNFTs() {
 
 					for (int n = 0; n < m_file_cfgs[4].DataArr.size(); n++)
 					{
-						//m_ele4 = LoadTextureFromFile(SelectOneColor(m_file_cfgs[4].DataArr[n]->FilePathArr).c_str());
 						num = SelectOneColor(m_file_cfgs[4].DataArr[n]->FilePathArr);
 						tempPath = m_file_cfgs[4].DataArr[n]->FilePathArr[num];
 						m_ele4 = LoadTextureFromFile(tempPath.c_str());
@@ -92,66 +88,66 @@ void TestNFT::GenerateNFTs() {
 						if (CommonTool::IsHitProbability(m_file_cfgs[0].Probability))
 						{
 							//result->FeatureFlags.push_back(m_file_cfgs[0].DataArr[i]->FileName);
-							result->FeatureFlags.push_back(bg_name);
+							//result->FeatureFlags.push_back(bg_name);
 							featureNum++;
 							fileCode.append(bg_name);
 							is_bg_draw = true;
 						}
 						else {
-							result->FeatureFlags.push_back("");
+							//result->FeatureFlags.push_back("");
 						}
 
 						if (CommonTool::IsHitProbability(m_file_cfgs[1].Probability))
 						{
 							//result->FeatureFlags.push_back(m_file_cfgs[1].DataArr[j]->FileName);
-							result->FeatureFlags.push_back(ele1_name);
+							//result->FeatureFlags.push_back(ele1_name);
 							featureNum++;
 							fileCode.append(ele1_name);
 							is_ele1_draw = true;
 						}
 						else {
-							result->FeatureFlags.push_back("");
+							//result->FeatureFlags.push_back("");
 						}
 
 						if (CommonTool::IsHitProbability(m_file_cfgs[2].Probability))
 						{
-							result->FeatureFlags.push_back(ele2_name);
+							//result->FeatureFlags.push_back(ele2_name);
 							featureNum++;
 							fileCode.append(ele2_name);
 							is_ele2_draw = true;
 						}
 						else {
-							result->FeatureFlags.push_back("");
+							//result->FeatureFlags.push_back("");
 						}
 
 						if (CommonTool::IsHitProbability(m_file_cfgs[3].Probability))
 						{
-							result->FeatureFlags.push_back(ele3_name);
+							//result->FeatureFlags.push_back(ele3_name);
 							featureNum++;
 							fileCode.append(ele3_name);
 							is_ele3_draw = true;
 						}
 						else {
-							result->FeatureFlags.push_back("");
+							//result->FeatureFlags.push_back("");
 						}
 
 						if (CommonTool::IsHitProbability(m_file_cfgs[4].Probability))
 						{
-							result->FeatureFlags.push_back(ele4_name);
+							//result->FeatureFlags.push_back(ele4_name);
 							featureNum++;
 							fileCode.append(ele4_name);
 							is_ele4_draw = true;
 						}
 						else {
-							result->FeatureFlags.push_back("");
+							//result->FeatureFlags.push_back("");
 						}
 
 
 						//这个判断是为了防止有元素是几率渲染的情况下，当整个NFT制作是完全排列组合方式时，在一个这个几率出现的for循环中有多个NFT该元素没有随机上而造成NFT重复，这一判断解决了这个问题
-						if (IsFileCodeRepeated(fileCode))
+						/*if (IsFileCodeRepeated(fileCode))
 						{
 							continue;
-						}
+						}*/
 
 						//这个判断是为了说明几个元素不同我们才认为NFT不同，当整个NFT制作是完全排列组合方式时，一个元素的不同我们就认为这个NFT与其他NFT不同，
 						//但是我们也可以通过这个判断指定比如两个元素不同，NFT才不同

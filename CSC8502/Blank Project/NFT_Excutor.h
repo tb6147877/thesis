@@ -34,7 +34,7 @@ struct NFT_ResultData {
 	int FeatureNum{ 0 };
 	std::string FileCode{ "" };
 	std::string Hash{ "" };
-	std::vector<std::string> FeatureFlags;
+	//std::vector<std::string> FeatureFlags;
 };
 
 class NFT_Excutor
@@ -56,6 +56,8 @@ protected:
 	std::vector<int> m_nft_serial_num;
 	std::vector<NFT_ResultData*> m_nft_results;//输出NFT的结果
 	TextRender* m_textRender{nullptr};
+
+	GLubyte* m_pic_data{ nullptr };
 
 
 	void InitShader(const std::string& vertPath, const std::string& fragPath);

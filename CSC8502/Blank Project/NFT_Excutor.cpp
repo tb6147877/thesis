@@ -43,6 +43,11 @@ NFT_Excutor::NFT_Excutor(const int width, const int height, const std::string& v
 	InitShader(vertPath, fragPath);
 	m_quad = new Quad();
 	m_textRender = new TextRender(width, height);
+	if (m_pic_data!=nullptr)
+	{
+		delete[] m_pic_data;
+		m_pic_data = nullptr;
+	}
 }
 
 NFT_Excutor::~NFT_Excutor() {
@@ -164,19 +169,40 @@ GLuint NFT_Excutor::LoadTextureFromFile(char const* path) {
 }
 
 
+//void NFT_Excutor::SerializeTexture(char const* path) {
+//	stbi_flip_vertically_on_write(true);
+//	GLubyte* data = new GLubyte[(3 * m_width * m_height)];
+//	memset(data, 0, 3 * m_width * m_height);
+//
+//	//glBindFramebuffer(GL_FRAMEBUFFER, m_resultFBO);
+//	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+//	glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, data);
+//
+//	// Write the PNG image
+//	int numOfComponents = 3; // RGB
+//	int strideInBytes = m_width * 3;
+//	stbi_write_png(path, m_width, m_height, 3, data, strideInBytes);
+//	delete[] data;
+//	data = nullptr;
+//}
+
 void NFT_Excutor::SerializeTexture(char const* path) {
 	stbi_flip_vertically_on_write(true);
-	GLubyte* data = new GLubyte[(3 * m_width * m_height)];
-	memset(data, 0, 3 * m_width * m_height);
+	if (m_pic_data==nullptr)
+	{
+		m_pic_data = new GLubyte[(3 * m_width * m_height)];
+	}
+	memset(m_pic_data, 0, 3 * m_width * m_height);
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, m_resultFBO);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, m_pic_data);
 
 	// Write the PNG image
 	int numOfComponents = 3; // RGB
 	int strideInBytes = m_width * 3;
-	stbi_write_png(path, m_width, m_height, 3, data, strideInBytes);
+	stbi_write_png(path, m_width, m_height, 3, m_pic_data, strideInBytes);
+	
 }
 
 void NFT_Excutor::InitFilesCfg(const std::vector<std::pair<std::string, int>>& data) {
@@ -208,6 +234,7 @@ void NFT_Excutor::InitFilesCfg(const std::vector<std::pair<std::string, int>>& d
 	}
 
 	CommonTool::ShuffleContainer(m_nft_serial_num);
+	std::cout << "NFT NUM:" << m_total_nft_num << "\n";
 }
 
 bool NFT_Excutor::IsFileCodeRepeated(const std::string& fileCode) {
@@ -223,7 +250,7 @@ bool NFT_Excutor::IsFileCodeRepeated(const std::string& fileCode) {
 }
 
 bool NFT_Excutor::IsNFTSame(const int diffNum, const std::vector<std::string>& flags) {
-	int result{ 0 };
+	/*int result{ 0 };
 	for (int i = 0; i < m_nft_results.size(); i++)
 	{
 		result = 0;
@@ -239,7 +266,7 @@ bool NFT_Excutor::IsNFTSame(const int diffNum, const std::vector<std::string>& f
 		{
 			return true;
 		}
-	}
+	}*/
 
 	
 	return false;
@@ -256,7 +283,7 @@ void NFT_Excutor::RecordNFTResult(const std::string& folderPath) {
 	{
 		temp += (std::to_string(m_nft_results[i]->ID) + ",");
 		temp += (std::to_string(m_nft_results[i]->FeatureNum) + ",");
-		temp += (m_nft_results[i]->FileCode + ",");
+		//temp += (m_nft_results[i]->FileCode + ",");
 		temp += (m_nft_results[i]->Hash + ",\n");
 	}
 	FileOperator::writeFile(temp, folderPath + "log.csv");
