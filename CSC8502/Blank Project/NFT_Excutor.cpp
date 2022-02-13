@@ -7,12 +7,17 @@
 #include <algorithm>
 #include <map>
 
+int NFT_SourceFile_Cfg::count = 0;
 
 void NFT_SourceFile_Cfg::InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName, const std::string& folderPath) {
 	std::map<char, NFT_SourceFile_Data*> map;
 
 	for (int i = 0; i < filesPath.size(); i++)
 	{
+		std::vector<std::string> strs = CommonTool::Split(filesName[i], "_");
+		int r1= atoi(strs[1].c_str());
+		int r2 = atoi(strs[2].c_str());
+
 		char c = filesName[i][0];
 		auto iter = std::find_if(map.begin(), map.end(), [&](const std::pair<char, NFT_SourceFile_Data*> item)->bool {
 			return (item.first==c);
@@ -21,14 +26,19 @@ void NFT_SourceFile_Cfg::InitDataArr(const std::vector<std::string>& filesPath, 
 		{
 			map[c]->FileNameArr.push_back(filesName[i]);
 			map[c]->FilePathArr.push_back(filesPath[i]);
+			map[c]->FileProbability.push_back(std::pair<int, int>{r1, r2});
+			map[c]->FileID.push_back(count);
 		}
 		else {
 			NFT_SourceFile_Data* ptr = new NFT_SourceFile_Data();
 			ptr->FolderPath = folderPath;
 			ptr->FileNameArr.push_back(filesName[i]);
 			ptr->FilePathArr.push_back(filesPath[i]);
+			ptr->FileProbability.push_back(std::pair<int, int>{r1, r2});
+			ptr->FileID.push_back(count);
 			map.insert(std::pair<char, NFT_SourceFile_Data*>(c, ptr));
 		}
+		count++;
 	}
 
 	for (const auto& item : map)
@@ -132,6 +142,18 @@ void NFT_Excutor::GenerateScreenTexture(GLuint& tex, const int type) {
 }
 
 GLuint NFT_Excutor::LoadTextureFromFile(char const* path) {
+	std::string str{ path };
+	auto iter = std::find_if(m_imgInRAM.begin(), m_imgInRAM.end(), [&](const std::pair<std::string,GLuint> item)->bool {
+		return (item.first == str);
+		});
+
+	if (iter != m_imgInRAM.end())
+	{
+		std::cout << "Already has this img:" << str << "\n";
+		return m_imgInRAM[str];
+	}
+
+
 	stbi_set_flip_vertically_on_load(true);
 	GLuint textureID;
 	glGenTextures(1, &textureID);
@@ -165,26 +187,9 @@ GLuint NFT_Excutor::LoadTextureFromFile(char const* path) {
 		stbi_image_free(data);
 	}
 
+	m_imgInRAM.insert(std::pair<std::string, GLuint>{str, textureID});
 	return textureID;
 }
-
-
-//void NFT_Excutor::SerializeTexture(char const* path) {
-//	stbi_flip_vertically_on_write(true);
-//	GLubyte* data = new GLubyte[(3 * m_width * m_height)];
-//	memset(data, 0, 3 * m_width * m_height);
-//
-//	//glBindFramebuffer(GL_FRAMEBUFFER, m_resultFBO);
-//	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-//	glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, data);
-//
-//	// Write the PNG image
-//	int numOfComponents = 3; // RGB
-//	int strideInBytes = m_width * 3;
-//	stbi_write_png(path, m_width, m_height, 3, data, strideInBytes);
-//	delete[] data;
-//	data = nullptr;
-//}
 
 void NFT_Excutor::SerializeTexture(char const* path) {
 	stbi_flip_vertically_on_write(true);
@@ -234,7 +239,26 @@ void NFT_Excutor::InitFilesCfg(const std::vector<std::pair<std::string, int>>& d
 	}
 
 	CommonTool::ShuffleContainer(m_nft_serial_num);
+	GenerateImgIDNameTable();
 	std::cout << "NFT NUM:" << m_total_nft_num << "\n";
+}
+
+
+void NFT_Excutor::GenerateImgIDNameTable() {
+	std::string temp{ "" };
+	
+	for (size_t i = 0; i < m_file_cfgs.size(); i++)
+	{
+		for (size_t j = 0; j <m_file_cfgs[i].DataArr.size(); j++)
+		{
+			for (size_t k = 0; k < m_file_cfgs[i].DataArr[j]->FileNameArr.size(); k++)
+			{
+				temp += (std::to_string(m_file_cfgs[i].DataArr[j]->FileID[k] )+ ",");
+				temp += (m_file_cfgs[i].DataArr[j]->FileNameArr[k] + ",\n");
+			}
+		}
+	}
+	FileOperator::writeFile(temp, m_outputPath + "Picture_ID_Name.csv");
 }
 
 bool NFT_Excutor::IsFileCodeRepeated(const std::string& fileCode) {
@@ -289,6 +313,10 @@ void NFT_Excutor::RecordNFTResult(const std::string& folderPath) {
 	FileOperator::writeFile(temp, folderPath + "log.csv");
 }
 
+void NFT_Excutor::RecordOneNFTResult(const std::string& folderPath) {
+
+}
+
 int NFT_Excutor::SelectOneColor(const std::vector<std::string>& arr) {
 	if (arr.size()==0)
 	{
@@ -299,4 +327,23 @@ int NFT_Excutor::SelectOneColor(const std::vector<std::string>& arr) {
 	int max = arr.size() - 1;
 	int num = CommonTool::GetRamdom(min, max);
 	return num;
+}
+
+int NFT_Excutor::SelectOneColor(const std::vector<std::pair<int, int>>& arr) {
+	if (arr.size() == 0)
+	{
+		std::cout << "ÔªËØÍ¼Æ¬ÊýÁ¿´íÎó\n";
+		return -1;
+	}
+	int num = CommonTool::GetRamdom(0, 100);
+	for (size_t i = 0; i < arr.size(); i++)
+	{
+		if (num>=arr[i].first&&num<=arr[i].second)
+		{
+			return i;
+		}
+	}
+
+	std::cout << "ÔªËØÍ¼Æ¬¸ÅÂÊÉèÖÃ´íÎó\n";
+	return -1;
 }

@@ -147,6 +147,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AdvanceNFT.cpp" />
     <ClCompile Include="Awei_NFT.cpp" />
     <ClCompile Include="CommonTool.cpp" />
     <ClCompile Include="DeferredRenderingHelper.cpp" />
@@ -156,6 +157,7 @@
     <ClCompile Include="md5.cpp" />
     <ClCompile Include="MSAAHelper.cpp" />
     <ClCompile Include="NFT_Excutor.cpp" />
+    <ClCompile Include="NFT_Print_Excutor.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SelectActiveClusterHelper.cpp" />
     <ClCompile Include="stb_image.cpp" />
@@ -164,6 +166,7 @@
     <ClCompile Include="TextRender.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AdvanceNFT.h" />
     <ClInclude Include="Awei_NFT.h" />
     <ClInclude Include="CommonTool.h" />
     <ClInclude Include="DeferredRenderingHelper.h" />
@@ -172,6 +175,7 @@
     <ClInclude Include="md5.h" />
     <ClInclude Include="MSAAHelper.h" />
     <ClInclude Include="NFT_Excutor.h" />
+    <ClInclude Include="NFT_Print_Excutor.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SelectActiveClusterHelper.h" />
     <ClInclude Include="TestNFT.h" />

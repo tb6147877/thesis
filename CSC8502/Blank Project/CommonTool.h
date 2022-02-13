@@ -42,5 +42,8 @@ public:
 	}
 
 	static std::string GetMd5(const std::string& str);
+
+	static std::vector<std::string> Split(const std::string& str, const std::string& delim);
+
 };
 

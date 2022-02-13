@@ -18,14 +18,19 @@ struct NFT_SourceFile_Data
 	std::string FileName{ "" };//to be delete
 	std::vector<std::string> FilePathArr;
 	std::vector<std::string> FileNameArr;
+	std::vector<std::pair<int, int>> FileProbability;//组内该文件出现的概率，0-100，组内所有成员一起组成100%
+	std::vector<int> FileID;
 };
 
 //一个元素图层包含的所有信息
 struct NFT_SourceFile_Cfg {
+public:
 	std::string FolderPath{ "" };
 	std::vector<NFT_SourceFile_Data*> DataArr;
 	int Probability{ 100 }; //?%
 	void InitDataArr(const std::vector<std::string>& filesPath, const std::vector<std::string>& filesName, const std::string& folderPath);
+private:
+	static int count;
 };
 
 //一张成品NFT里面包含的所有信息
@@ -56,8 +61,9 @@ protected:
 	std::vector<int> m_nft_serial_num;
 	std::vector<NFT_ResultData*> m_nft_results;//输出NFT的结果
 	TextRender* m_textRender{nullptr};
-
+	std::map<std::string, GLuint> m_imgInRAM;
 	GLubyte* m_pic_data{ nullptr };
+	std::string m_outputPath;
 
 
 	void InitShader(const std::string& vertPath, const std::string& fragPath);
@@ -67,7 +73,10 @@ protected:
 	void SerializeTexture(char const* path);
 	bool IsFileCodeRepeated(const std::string& fileCode);
 	void RecordNFTResult(const std::string& folderPath);
+	void RecordOneNFTResult(const std::string& folderPath);
 	bool IsNFTSame(const int diffNum,const std::vector<std::string>& flags);
 	int SelectOneColor(const std::vector<std::string>& arr);
+	int SelectOneColor(const std::vector<std::pair<int,int>>& arr);
+	void GenerateImgIDNameTable();//生成元素图ID和文件名的对应表，方便查找NFT属性
 };
 

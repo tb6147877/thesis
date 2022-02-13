@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 
+
+//awei系列的一个测试代码，现在也没用了，废弃
+
 class Awei_NFT : public NFT_Excutor
 {
 public:

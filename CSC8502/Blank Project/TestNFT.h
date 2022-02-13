@@ -3,6 +3,10 @@
 #include <vector>
 #include <string>
 
+/*
+awei系列完整的原始图片的生成代码
+*/
+
 class TestNFT : public NFT_Excutor
 {
 public:

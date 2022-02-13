@@ -20,6 +20,9 @@
 #include "TestNFT.h"
 #include "Awei_NFT.h"
 
+#include "NFT_Print_Excutor.h"
+#include "AdvanceNFT.h"
+
 struct PointLight
 {
 	Vector4 color;
