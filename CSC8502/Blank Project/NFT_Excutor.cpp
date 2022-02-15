@@ -261,6 +261,33 @@ void NFT_Excutor::GenerateImgIDNameTable() {
 	FileOperator::writeFile(temp, m_outputPath + "Picture_ID_Name.csv");
 }
 
+void NFT_Excutor::GenerateElementRealAppearNumberTable() {
+	std::string temp{ "" };
+
+	for (auto& item: m_eleRealAppearNum)
+	{
+		temp += (std::to_string(item.first) + "," + std::to_string(item.second)+",\n");
+	}
+
+	FileOperator::writeFile(temp, m_outputPath + "Picture_ID_Probability.csv");
+}
+
+
+void NFT_Excutor::AddOneElementAppearRecord(const int id) {
+	auto iter = std::find_if(m_eleRealAppearNum.begin(), m_eleRealAppearNum.end(), [&](const std::pair<int, int> item)->bool {
+		return (item.first == id);
+		});
+
+	if (iter != m_eleRealAppearNum.end()) {
+		m_eleRealAppearNum[id]++;
+	}
+	else
+	{
+		m_eleRealAppearNum.insert(std::pair<int, int>{id, 1});
+	}
+}
+
+
 bool NFT_Excutor::IsFileCodeRepeated(const std::string& fileCode) {
 	for (int i = 0; i < m_nft_results.size(); i++)
 	{

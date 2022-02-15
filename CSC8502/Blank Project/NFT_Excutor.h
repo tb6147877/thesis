@@ -65,6 +65,8 @@ protected:
 	GLubyte* m_pic_data{ nullptr };
 	std::string m_outputPath;
 
+	std::map<int, int> m_eleRealAppearNum;
+
 
 	void InitShader(const std::string& vertPath, const std::string& fragPath);
 	void InitFBO(const int width, const int height);
@@ -78,5 +80,7 @@ protected:
 	int SelectOneColor(const std::vector<std::string>& arr);
 	int SelectOneColor(const std::vector<std::pair<int,int>>& arr);
 	void GenerateImgIDNameTable();//生成元素图ID和文件名的对应表，方便查找NFT属性
+	void GenerateElementRealAppearNumberTable();//生成元素图ID和出现次数的对应表，方便统计元素的实际稀有率
+	void AddOneElementAppearRecord(const int id);//记录一次元素图ID出现
 };
 

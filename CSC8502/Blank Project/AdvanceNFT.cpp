@@ -35,6 +35,7 @@ void AdvanceNFT::GenerateNFTs() {
 			std::string tempPath = m_file_cfgs[0].DataArr[i]->FilePathArr[num];
 			m_bg = LoadTextureFromFile(tempPath.c_str());
 			props += (std::to_string(m_file_cfgs[0].DataArr[i]->FileID[num]) + "_");
+			AddOneElementAppearRecord(m_file_cfgs[0].DataArr[i]->FileID[num]);
 			//bg_name = m_file_cfgs[0].DataArr[i]->FileNameArr[num];
 
 			//num = SelectOneColor(m_file_cfgs[1].DataArr[j]->FilePathArr);
@@ -42,6 +43,7 @@ void AdvanceNFT::GenerateNFTs() {
 			tempPath = m_file_cfgs[1].DataArr[j]->FilePathArr[num];
 			m_ele1 = LoadTextureFromFile(tempPath.c_str());
 			props += (std::to_string(m_file_cfgs[1].DataArr[j]->FileID[num]) + "_");
+			AddOneElementAppearRecord(m_file_cfgs[1].DataArr[j]->FileID[num]);
 			//ele1_name = m_file_cfgs[1].DataArr[j]->FileNameArr[num];
 
 
@@ -72,5 +74,6 @@ void AdvanceNFT::GenerateNFTs() {
 		}
 	}
 
+	GenerateElementRealAppearNumberTable();
 	m_isCompleted = true;
 }
