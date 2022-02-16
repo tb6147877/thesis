@@ -42,11 +42,17 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	//m_nft = new Awei_NFT(1024, 1024, "NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
 
 	m_nft = new AdvanceNFT(1024, 1024, "NFT_SimpleVert.glsl", "NFT_SimpleFrag.glsl");
-	std::pair<std::string, int> bg{ "C:/Users/tb614/Desktop/awei_test/bg",100 };
-	std::pair<std::string, int> ele1{ "C:/Users/tb614/Desktop/awei_test/ele1",100 };
+	std::pair<std::string, int> bg{ "C:/Users/tb614/Desktop/awei_test_1000/bg",100 };
+	std::pair<std::string, int> ele1{ "C:/Users/tb614/Desktop/awei_test_1000/ele1",100 };
+	std::pair<std::string, int> ele2{ "C:/Users/tb614/Desktop/awei_test_1000/ele2",100 };
+	std::pair<std::string, int> ele3{ "C:/Users/tb614/Desktop/awei_test_1000/ele3",100 };
+	std::pair<std::string, int> ele4{ "C:/Users/tb614/Desktop/awei_test_1000/ele4",100 };
 	std::vector<std::pair<std::string, int>> cfgs;
 	cfgs.push_back(bg);
 	cfgs.push_back(ele1);
+	cfgs.push_back(ele2);
+	cfgs.push_back(ele3);
+	cfgs.push_back(ele4);
 	m_nft->InitFilesCfg(cfgs);
 
 	//===============================================

@@ -27,50 +27,80 @@ void AdvanceNFT::GenerateNFTs() {
 	{
 		for (size_t j = 0; j < m_file_cfgs[1].DataArr.size(); j++)
 		{	
-			//1.准备资源
-			props = "";
-			
-			//int num = SelectOneColor(m_file_cfgs[0].DataArr[i]->FilePathArr);
-			int num = SelectOneColor(m_file_cfgs[0].DataArr[i]->FileProbability);
-			std::string tempPath = m_file_cfgs[0].DataArr[i]->FilePathArr[num];
-			m_bg = LoadTextureFromFile(tempPath.c_str());
-			props += (std::to_string(m_file_cfgs[0].DataArr[i]->FileID[num]) + "_");
-			AddOneElementAppearRecord(m_file_cfgs[0].DataArr[i]->FileID[num]);
-			//bg_name = m_file_cfgs[0].DataArr[i]->FileNameArr[num];
+			for (size_t k = 0; k < m_file_cfgs[2].DataArr.size(); k++)
+			{
+				for (size_t m = 0; m < m_file_cfgs[3].DataArr.size(); m++)
+				{
+					for (size_t n = 0; n < m_file_cfgs[4].DataArr.size(); n++)
+					{
+						//1.准备资源
+						props = "";
 
-			//num = SelectOneColor(m_file_cfgs[1].DataArr[j]->FilePathArr);
-			num = SelectOneColor(m_file_cfgs[1].DataArr[j]->FileProbability);
-			tempPath = m_file_cfgs[1].DataArr[j]->FilePathArr[num];
-			m_ele1 = LoadTextureFromFile(tempPath.c_str());
-			props += (std::to_string(m_file_cfgs[1].DataArr[j]->FileID[num]) + "_");
-			AddOneElementAppearRecord(m_file_cfgs[1].DataArr[j]->FileID[num]);
-			//ele1_name = m_file_cfgs[1].DataArr[j]->FileNameArr[num];
+						int num = SelectOneColor(m_file_cfgs[0].DataArr[i]->FileProbability);
+						std::string tempPath = m_file_cfgs[0].DataArr[i]->FilePathArr[num];
+						m_bg = LoadTextureFromFile(tempPath.c_str());
+						props += (std::to_string(m_file_cfgs[0].DataArr[i]->FileID[num]) + "_");
+						AddOneElementAppearRecord(m_file_cfgs[0].DataArr[i]->FileID[num]);
+
+						num = SelectOneColor(m_file_cfgs[1].DataArr[j]->FileProbability);
+						tempPath = m_file_cfgs[1].DataArr[j]->FilePathArr[num];
+						m_ele1 = LoadTextureFromFile(tempPath.c_str());
+						props += (std::to_string(m_file_cfgs[1].DataArr[j]->FileID[num]) + "_");
+						AddOneElementAppearRecord(m_file_cfgs[1].DataArr[j]->FileID[num]);
+
+						num = SelectOneColor(m_file_cfgs[2].DataArr[k]->FileProbability);
+						tempPath = m_file_cfgs[2].DataArr[k]->FilePathArr[num];
+						m_ele2 = LoadTextureFromFile(tempPath.c_str());
+						props += (std::to_string(m_file_cfgs[2].DataArr[k]->FileID[num]) + "_");
+						AddOneElementAppearRecord(m_file_cfgs[2].DataArr[k]->FileID[num]);
+
+						num = SelectOneColor(m_file_cfgs[3].DataArr[m]->FileProbability);
+						tempPath = m_file_cfgs[3].DataArr[m]->FilePathArr[num];
+						m_ele3 = LoadTextureFromFile(tempPath.c_str());
+						props += (std::to_string(m_file_cfgs[3].DataArr[m]->FileID[num]) + "_");
+						AddOneElementAppearRecord(m_file_cfgs[3].DataArr[m]->FileID[num]);
+
+						num = SelectOneColor(m_file_cfgs[4].DataArr[n]->FileProbability);
+						tempPath = m_file_cfgs[4].DataArr[n]->FilePathArr[num];
+						m_ele4 = LoadTextureFromFile(tempPath.c_str());
+						props += (std::to_string(m_file_cfgs[4].DataArr[n]->FileID[num]) + "_");
+						AddOneElementAppearRecord(m_file_cfgs[4].DataArr[n]->FileID[num]);
 
 
-			//2.绘制
-			glClear(GL_COLOR_BUFFER_BIT);
-			glDisable(GL_DEPTH_TEST);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glUseProgram(m_nft_shader->GetProgram());
+						//2.绘制
+						glClear(GL_COLOR_BUFFER_BIT);
+						glDisable(GL_DEPTH_TEST);
+						glEnable(GL_BLEND);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						glUseProgram(m_nft_shader->GetProgram());
 
-			glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, m_bg);
-			m_quad->Draw();
+						glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, m_bg);
+						m_quad->Draw();
 
-			glUniform1i(glGetUniformLocation(m_nft_shader->GetProgram(), "diffTex0"), 0);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, m_ele1);
-			m_quad->Draw();
+						glBindTexture(GL_TEXTURE_2D, m_ele1);
+						m_quad->Draw();
 
-			//3.序列化
-			std::string temp = path;
-			temp.append(std::to_string(m_nft_serial_num[counter])).append("_").append(".png");
-			SerializeTexture(temp.c_str());
-			FileOperator::appendFile(std::to_string(m_nft_serial_num[counter])+","+props + ",\n", path + "NFT Details.csv");
+						glBindTexture(GL_TEXTURE_2D, m_ele2);
+						m_quad->Draw();
 
-			counter++;
+						glBindTexture(GL_TEXTURE_2D, m_ele3);
+						m_quad->Draw();
+
+						glBindTexture(GL_TEXTURE_2D, m_ele4);
+						m_quad->Draw();
+
+						//3.序列化
+						std::string temp = path;
+						temp.append(std::to_string(m_nft_serial_num[counter])).append("_").append(".png");
+						SerializeTexture(temp.c_str());
+						FileOperator::appendFile(std::to_string(m_nft_serial_num[counter]) + "," + props + ",\n", path + "NFT Details.csv");
+
+						counter++;
+					}
+				}
+			}
 		}
 	}
 
